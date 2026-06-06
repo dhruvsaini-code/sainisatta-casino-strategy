@@ -1,15 +1,13 @@
-// BetPro Screenshot Vision Analyzer (In-Browser OCR & Game State Classifier)
+// AegisBet Screenshot Vision Analyzer (In-Browser OCR & Bounding Box Annotations)
 
 class VisionAnalyzer {
   constructor() {
     this.isAnalyzing = false;
-    this.ocrWorker = null;
   }
 
   init() {
     const dropzone = document.getElementById("vs-dropzone");
     const fileInput = document.getElementById("vs-file-input");
-    const logConsole = document.getElementById("vs-console-logs");
     
     if (!dropzone || !fileInput) return;
 
@@ -44,7 +42,7 @@ class VisionAnalyzer {
     if (!logConsole) return;
 
     const entry = document.createElement("div");
-    entry.style.marginBottom = '0.5rem';
+    entry.style.marginBottom = '0.4rem';
     
     let prefix = '[INFO]';
     let color = '#94a3b8';
@@ -57,13 +55,13 @@ class VisionAnalyzer {
       color = '#f43f5e';
     } else if (type === 'match') {
       prefix = '[DETECTOR]';
-      color = '#06b6d4';
+      color = '#00f2fe';
     } else if (type === 'warn') {
       prefix = '[WARNING]';
-      color = '#fbbf24';
+      color = '#f59e0b';
     }
 
-    entry.innerHTML = `<span style="color: ${color}; font-weight: bold; margin-right: 0.5rem;">${prefix}</span><span>${message}</span>`;
+    entry.innerHTML = `<span style="color: ${color}; font-weight: bold; margin-right: 0.5rem; font-family: 'JetBrains Mono', monospace;">${prefix}</span><span>${message}</span>`;
     logConsole.appendChild(entry);
     logConsole.scrollTop = logConsole.scrollHeight;
   }
@@ -78,21 +76,23 @@ class VisionAnalyzer {
     this.isAnalyzing = true;
 
     this.clearLogs();
-    this.log(`Received file: ${file.name} (${(file.size / 1024).toFixed(1)} KB)`);
+    this.log(`Received screenshot: ${file.name} (${(file.size / 1024).toFixed(1)} KB)`);
 
     const reader = new FileReader();
     reader.onload = (e) => {
       const imgDataUrl = e.target.result;
       
-      // Update preview card
+      // Update preview elements
       const previewImg = document.getElementById("vs-preview-img");
       const previewContainer = document.getElementById("vs-preview-container");
       const scanOverlay = document.getElementById("vs-scan-overlay");
+      const bboxOverlay = document.getElementById("vs-bounding-boxes-overlay");
       
       if (previewImg && previewContainer && scanOverlay) {
         previewImg.src = imgDataUrl;
         previewContainer.style.display = 'block';
-        scanOverlay.style.display = 'block'; // Start scan line animation
+        scanOverlay.style.display = 'block';
+        if (bboxOverlay) bboxOverlay.innerHTML = ''; // Clear existing overlays
       }
 
       playSound('shuffle');
@@ -105,13 +105,12 @@ class VisionAnalyzer {
     this.log("Initializing OCR Engine (Tesseract.js)...");
     
     try {
-      // Load Tesseract via CDN dynamically if not available globally
       if (typeof Tesseract === 'undefined') {
-        this.log("Downloading OCR models in-browser...");
+        this.log("Downloading browser-side neural OCR models...");
         await this.loadScript("https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js");
       }
 
-      this.log("OCR models loaded. Commencing screen OCR scanning...");
+      this.log("Neural dependencies loaded. Reading screen layout grids...");
 
       Tesseract.recognize(
         imageSrc,
@@ -121,22 +120,23 @@ class VisionAnalyzer {
             if (m.status === 'recognizing text') {
               const pct = Math.round(m.progress * 100);
               if (pct % 20 === 0) {
-                this.log(`OCR Scanning: ${pct}% complete...`);
+                this.log(`OCR Analysis: ${pct}% complete...`);
               }
             }
           }
         }
-      ).then(({ data: { text } }) => {
-        this.log("OCR scanning completed successfully.", "success");
-        this.analyzeTextResults(text);
+      ).then((result) => {
+        this.log("OCR layout reading completed.", "success");
+        this.drawWordBoundingBoxes(result.data.words);
+        this.analyzeTextResults(result.data.text);
       }).catch(err => {
-        this.log(`OCR Analysis failed: ${err.message}`, "error");
+        this.log(`OCR parsing failed: ${err.message}`, "error");
         this.isAnalyzing = false;
         this.stopScanAnimation();
       });
 
     } catch (e) {
-      this.log(`Failed to load OCR dependencies: ${e.message}`, "error");
+      this.log(`Failed to initialize Vision models: ${e.message}`, "error");
       this.isAnalyzing = false;
       this.stopScanAnimation();
     }
@@ -157,13 +157,68 @@ class VisionAnalyzer {
     });
   }
 
+  drawWordBoundingBoxes(words) {
+    const previewImg = document.getElementById("vs-preview-img");
+    const bboxOverlay = document.getElementById("vs-bounding-boxes-overlay");
+    if (!previewImg || !bboxOverlay || !words) return;
+
+    // Wait until preview image is fully loaded to determine dimensions
+    const displayWidth = previewImg.clientWidth;
+    const displayHeight = previewImg.clientHeight;
+    const originalWidth = previewImg.naturalWidth;
+    const originalHeight = previewImg.naturalHeight;
+
+    if (!originalWidth || !originalHeight || !displayWidth || !displayHeight) return;
+
+    const scaleX = displayWidth / originalWidth;
+    const scaleY = displayHeight / originalHeight;
+
+    this.log(`Mapping OCR coordinates to ${displayWidth}x${displayHeight} viewport...`);
+
+    const cardRegex = /^(10|[2-9]|[akqjt])$/i;
+    const keywordRegex = /^(dealer|player|blackjack|split|double|stand|hit|pot|flop|turn|river|banker|tie|craps|pass|don't)$/i;
+
+    words.forEach(w => {
+      const wordText = w.text.trim();
+      const isCard = cardRegex.test(wordText);
+      const isKeyword = keywordRegex.test(wordText);
+
+      // Draw bounding box only for relevant game variables to reduce noise
+      if (isCard || isKeyword) {
+        const box = document.createElement("div");
+        box.className = "ocr-bounding-box";
+        
+        // Calculate scaled dimensions
+        const left = w.bbox.x0 * scaleX;
+        const top = w.bbox.y0 * scaleY;
+        const width = (w.bbox.x1 - w.bbox.x0) * scaleX;
+        const height = (w.bbox.y1 - w.bbox.y0) * scaleY;
+
+        box.style.left = `${left}px`;
+        box.style.top = `${top}px`;
+        box.style.width = `${width}px`;
+        box.style.height = `${height}px`;
+        
+        if (isCard) {
+          box.style.borderColor = 'var(--secondary)';
+          box.title = `Detected Card Rank: ${wordText}`;
+        } else {
+          box.style.borderColor = 'var(--primary)';
+          box.title = `Detected Game Variable: ${wordText}`;
+        }
+
+        bboxOverlay.appendChild(box);
+      }
+    });
+  }
+
   analyzeTextResults(text) {
     this.log("Running heuristics pattern matcher on extracted text...");
     const lower = text.toLowerCase();
     
     // Log parsed raw text snippet for debugging/immersion
     const snippet = text.replace(/\n/g, ' ').substring(0, 120);
-    this.log(`Extracted raw text snippet: "${snippet}..."`);
+    this.log(`Heuristics read: "${snippet}..."`);
 
     let matchFound = false;
 
@@ -221,9 +276,7 @@ class VisionAnalyzer {
     let detectedPlayer = [];
 
     if (cards.length > 0) {
-      // Map back to uppercase rank strings
       const mapped = cards.map(c => c.toUpperCase());
-      // Assume the first card is the dealer upcard, next ones are player's hand
       detectedDealer = mapped[0];
       detectedPlayer = mapped.slice(1, 4); // Capture up to 3 cards
       
@@ -232,23 +285,15 @@ class VisionAnalyzer {
       
       // Inject to Blackjack UI
       setTimeout(() => {
-        // Switch tab to blackjack
         this.transitionToGameTab('blackjack-tab', 'blackjack-panel');
         
-        // Trigger UI simulation
         const playerBtn = document.getElementById("bj-select-player-btn");
         if (playerBtn) playerBtn.click();
         
-        // Populate the actual engine state
-        // To make it easy, we trigger clicks or call internal state modifiers
-        // Let's inject directly into the DOM arrays if we find cards
         const clearBtn = document.getElementById("bj-clear-btn");
         if (clearBtn) clearBtn.click();
 
-        // Feed mock cards (we will use spade suit by default)
         const mockSuits = ['s', 'h', 'c', 'd'];
-        
-        // Trigger simulated clicks on the card grid to add cards
         const cardDeckButtons = document.querySelectorAll("#bj-card-grid .deck-card");
         
         // Add player cards
@@ -266,7 +311,6 @@ class VisionAnalyzer {
           const matchBtn = Array.from(cardDeckButtons).find(btn => btn.innerText.includes(detectedDealer));
           if (matchBtn) matchBtn.click();
           
-          // Re-activate player target for user convenience
           if (playerBtn) playerBtn.click();
         }
 
@@ -280,7 +324,6 @@ class VisionAnalyzer {
 
   extractPokerState(text) {
     this.log("Scanning community card structures & opponent sliders...");
-    // Just match potential cards
     const cardRegex = /\b(10|[2-9]|[akqj])\b/g;
     const cards = (text.match(cardRegex) || []).map(c => c.toUpperCase());
     
@@ -290,13 +333,10 @@ class VisionAnalyzer {
       if (cards.length >= 2) {
         this.log(`Detected Pocket Hand: [${cards[0]}, ${cards[1]}]`, "match");
         
-        // Clear Poker board
         const clearBtn = document.getElementById("pk-clear-btn");
         if (clearBtn) clearBtn.click();
 
         const cardDeckButtons = document.querySelectorAll("#pk-card-grid .deck-card");
-        
-        // Add pocket cards
         const pocketBtn = document.getElementById("pk-select-pocket-btn");
         if (pocketBtn) pocketBtn.click();
         
@@ -306,7 +346,6 @@ class VisionAnalyzer {
           if (matchBtn) matchBtn.click();
         });
 
-        // Add board cards
         if (cards.length >= 5) {
           const boardBtn = document.getElementById("pk-select-board-btn");
           if (boardBtn) boardBtn.click();
@@ -338,8 +377,6 @@ class VisionAnalyzer {
 
   extractBaccaratState(text) {
     this.log("Parsing shoe records and roadmap entries...");
-    
-    // Look for winning patterns: Banker, Player, Tie
     const shoe = [];
     const words = text.split(/\s+/);
     for (let word of words) {
@@ -349,14 +386,13 @@ class VisionAnalyzer {
       else if (w.startsWith('tie') || w === 't') shoe.push('T');
     }
 
-    const filtered = shoe.slice(0, 10); // Capture up to 10 entries
+    const filtered = shoe.slice(0, 10);
 
     setTimeout(() => {
       this.transitionToGameTab('baccarat-tab', 'baccarat-panel');
       if (filtered.length > 0) {
         this.log(`Restored shoe trend from screen capture: [${filtered.join(', ')}]`, "match");
         
-        // Reset and populate
         const resetBtn = document.getElementById("bc-reset-btn");
         if (resetBtn) resetBtn.click();
         
@@ -364,7 +400,6 @@ class VisionAnalyzer {
           BaccaratEngine.addResult(res);
         });
         
-        // Update UI
         if (typeof updateBaccaratUI === 'function') {
           updateBaccaratUI();
         }
@@ -388,14 +423,17 @@ class VisionAnalyzer {
     const panel = document.getElementById(panelId);
     
     if (navBtn && panel) {
-      // Un-activate all
       document.querySelectorAll(".nav-item").forEach(n => n.classList.remove("active"));
       document.querySelectorAll(".panel").forEach(p => p.classList.remove("active"));
       
       navBtn.classList.add("active");
       panel.classList.add("active");
       
-      // Re-trigger layout sizes if charts exist
+      // Update trackers
+      if (typeof trackTabAccess === 'function') {
+        trackTabAccess(panelId);
+      }
+      
       if (panelId === 'roulette-panel' && typeof updateRouletteChart === 'function') {
         updateRouletteChart();
       } else if (panelId === 'custom-panel' && typeof updateCustomChart === 'function') {

@@ -1,4 +1,4 @@
-// BetPro Strategizer Core Application Logic
+// BetPro Strategizer Core Application Controller
 
 // Web Audio API Synthesizer
 let audioCtx = null;
@@ -23,12 +23,12 @@ function playSound(type) {
     
     if (type === 'click') {
       osc.type = 'sine';
-      osc.frequency.setValueAtTime(800, now);
-      osc.frequency.exponentialRampToValueAtTime(300, now + 0.08);
+      osc.frequency.setValueAtTime(850, now);
+      osc.frequency.exponentialRampToValueAtTime(350, now + 0.07);
       gain.gain.setValueAtTime(0.12, now);
-      gain.gain.exponentialRampToValueAtTime(0.01, now + 0.08);
+      gain.gain.exponentialRampToValueAtTime(0.01, now + 0.07);
       osc.start(now);
-      osc.stop(now + 0.08);
+      osc.stop(now + 0.07);
     } else if (type === 'shuffle') {
       const bufferSize = audioCtx.sampleRate * 0.12;
       const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
@@ -41,7 +41,7 @@ function playSound(type) {
       
       const filter = audioCtx.createBiquadFilter();
       filter.type = 'bandpass';
-      filter.frequency.value = 1200;
+      filter.frequency.value = 1400;
       
       noise.connect(filter);
       filter.connect(gain);
@@ -67,23 +67,25 @@ function playSound(type) {
       });
     } else if (type === 'loss') {
       osc.type = 'sawtooth';
-      osc.frequency.setValueAtTime(280, now);
-      osc.frequency.linearRampToValueAtTime(90, now + 0.25);
+      osc.frequency.setValueAtTime(260, now);
+      osc.frequency.linearRampToValueAtTime(80, now + 0.25);
       gain.gain.setValueAtTime(0.1, now);
       gain.gain.exponentialRampToValueAtTime(0.01, now + 0.25);
       osc.start(now);
       osc.stop(now + 0.25);
     }
   } catch (err) {
-    console.warn('Audio Context error (User interaction required):', err);
+    console.warn('Audio Context interaction error:', err);
   }
 }
 
 // Global Variables
 let rouletteChartInstance = null;
 let customChartInstance = null;
+let authMode = 'login';
+let analyticsChartInstance = null;
 
-// Card asset helper
+// Card symbols
 const SUIT_SYMBOLS = { 's': '♠', 'h': '♥', 'd': '♦', 'c': '♣' };
 const SUIT_NAMES = { 's': 'Spades', 'h': 'Hearts', 'd': 'Diamonds', 'c': 'Clubs' };
 
@@ -93,7 +95,6 @@ document.addEventListener("DOMContentLoaded", () => {
   initSoundToggle();
   initAuth();
   checkSession();
-  if (window.lucide) lucide.createIcons();
   
   // Game Init functions
   initBlackjack();
@@ -102,9 +103,11 @@ document.addEventListener("DOMContentLoaded", () => {
   initPoker();
   initCraps();
   initCustomSequencer();
+
+  if (window.lucide) lucide.createIcons();
 });
 
-// Sidebar & Page Routing
+// Navigation Sidebar Routing
 function initRouting() {
   const navButtons = document.querySelectorAll(".nav-item");
   const panels = document.querySelectorAll(".panel");
@@ -123,10 +126,10 @@ function initRouting() {
         targetEl.classList.add("active");
       }
       
-      // Track page views in the SQLite database
+      // Track visits in the SQLite database
       trackTabAccess(targetPanel);
       
-      // Special redraw trigger for charts if switching tabs
+      // Redraw charts
       if (targetPanel === 'roulette-panel') {
         updateRouletteChart();
       } else if (targetPanel === 'custom-panel') {
@@ -152,18 +155,33 @@ function initSoundToggle() {
   });
 }
 
+// Helper to update SVG progress rings
+function setProgressRing(fillId, textId, pct) {
+  const ring = document.getElementById(fillId);
+  const text = document.getElementById(textId);
+  
+  if (ring) {
+    const circumference = 282.7; // 2 * PI * r (r=45)
+    const offset = circumference - (pct / 100) * circumference;
+    ring.style.strokeDashoffset = offset;
+  }
+  
+  if (text) {
+    text.textContent = `${pct}%`;
+  }
+}
+
 /* ==========================================================================
    BLACKJACK MODULE
    ========================================================================== */
 function initBlackjack() {
-  let selectedHandTarget = 'player'; // 'player' or 'dealer'
+  let selectedHandTarget = 'player';
   const playerHand = [];
   let dealerCard = null;
 
   const playerHandContainer = document.getElementById("bj-player-hand");
   const dealerHandContainer = document.getElementById("bj-dealer-hand");
   
-  // Tab triggers for where cards go
   const selectPlayerBtn = document.getElementById("bj-select-player-btn");
   const selectDealerBtn = document.getElementById("bj-select-dealer-btn");
 
@@ -187,7 +205,6 @@ function initBlackjack() {
     });
   }
 
-  // Clear Hand button
   const clearBtn = document.getElementById("bj-clear-btn");
   if (clearBtn) {
     clearBtn.addEventListener("click", () => {
@@ -199,14 +216,12 @@ function initBlackjack() {
     });
   }
 
-  // Card selector matrix clicks
   const ranks = ['A', 'K', 'Q', 'J', '10', '9', '8', '7', '6', '5', '4', '3', '2'];
   const suits = ['s', 'h', 'd', 'c'];
   const cardGrid = document.getElementById("bj-card-grid");
 
   if (cardGrid) {
     cardGrid.innerHTML = '';
-    // Let's create visual selector cards in grid
     for (let r of ranks) {
       for (let s of suits) {
         const isRed = ['h', 'd'].includes(s);
@@ -214,7 +229,7 @@ function initBlackjack() {
         cardBtn.className = `deck-card ${isRed ? 'red-suit' : ''}`;
         cardBtn.innerHTML = `
           <div>${r}</div>
-          <div style="align-self: flex-end; font-size: 1.2rem;">${SUIT_SYMBOLS[s]}</div>
+          <div style="align-self: flex-end; font-size: 1.1rem;">${SUIT_SYMBOLS[s]}</div>
         `;
         
         cardBtn.addEventListener("click", () => {
@@ -236,7 +251,6 @@ function initBlackjack() {
   }
 
   function renderBlackjackHands() {
-    // Render Player
     playerHandContainer.innerHTML = '';
     if (playerHand.length === 0) {
       playerHandContainer.innerHTML = '<span class="text-muted">Awaiting Player Cards...</span>';
@@ -247,14 +261,13 @@ function initBlackjack() {
         cardEl.className = `active-card ${isRed ? 'red-suit' : ''}`;
         cardEl.innerHTML = `
           <div>${card.rank}</div>
-          <div style="align-self: flex-end; font-size: 1.3rem;">${SUIT_SYMBOLS[card.suit]}</div>
+          <div style="align-self: flex-end; font-size: 1.1rem;">${SUIT_SYMBOLS[card.suit]}</div>
           <button class="remove-btn" onclick="removePlayerBJCard(${idx})">&times;</button>
         `;
         playerHandContainer.appendChild(cardEl);
       });
     }
 
-    // Render Dealer
     dealerHandContainer.innerHTML = '';
     if (!dealerCard) {
       dealerHandContainer.innerHTML = '<span class="text-muted">Awaiting Dealer Upcard...</span>';
@@ -264,14 +277,13 @@ function initBlackjack() {
       cardEl.className = `active-card ${isRed ? 'red-suit' : ''}`;
       cardEl.innerHTML = `
         <div>${dealerCard.rank}</div>
-        <div style="align-self: flex-end; font-size: 1.3rem;">${SUIT_SYMBOLS[dealerCard.suit]}</div>
+        <div style="align-self: flex-end; font-size: 1.1rem;">${SUIT_SYMBOLS[dealerCard.suit]}</div>
         <button class="remove-btn" onclick="removeDealerBJCard()">&times;</button>
       `;
       dealerHandContainer.appendChild(cardEl);
     }
   }
 
-  // Expose global card removal helpers
   window.removePlayerBJCard = (idx) => {
     playSound('click');
     playerHand.splice(idx, 1);
@@ -295,16 +307,15 @@ function initBlackjack() {
     // Update Advice HUD
     const adviceEl = document.getElementById("bj-advice-choice");
     const explanationEl = document.getElementById("bj-advice-explanation");
-    const pctValEl = document.getElementById("bj-prob-val");
-    const pctBarEl = document.getElementById("bj-prob-bar");
 
-    if (adviceEl && explanationEl && pctValEl && pctBarEl) {
+    if (adviceEl && explanationEl) {
       adviceEl.textContent = rec.actionText;
       explanationEl.textContent = rec.explanation;
-      pctValEl.textContent = `${rec.winPercentage}%`;
-      pctBarEl.style.width = `${rec.winPercentage}%`;
 
-      // Set action coloring
+      // Radial dial win rate
+      setProgressRing("bj-gauge-fill", "bj-prob-val", rec.winPercentage);
+
+      // Color actions
       adviceEl.className = 'advisor-choice ';
       if (rec.action === 'H') adviceEl.classList.add('text-cyan');
       else if (rec.action === 'S') adviceEl.classList.add('text-purple');
@@ -313,7 +324,7 @@ function initBlackjack() {
       else adviceEl.classList.add('text-muted');
     }
 
-    // Update stats table
+    // Stats
     const statTotal = document.getElementById("bj-stat-total");
     const statType = document.getElementById("bj-stat-type");
     const statDealerBust = document.getElementById("bj-stat-dealerbust");
@@ -322,7 +333,7 @@ function initBlackjack() {
       if (playerHand.length >= 2) {
         const analysis = BlackjackEngine.analyzeHand(pRanks);
         statTotal.textContent = analysis.total;
-        statType.textContent = analysis.isSoft ? 'Soft Hand' : (analysis.isPair ? 'Pair' : 'Hard Hand');
+        statType.textContent = analysis.isSoft ? 'Soft' : (analysis.isPair ? 'Pair' : 'Hard');
       } else {
         statTotal.textContent = '-';
         statType.textContent = '-';
@@ -339,8 +350,15 @@ function initBlackjack() {
 }
 
 /* ==========================================================================
-   ROULETTE MODULE
+   ROULETTE MODULE (Physics-based spin canvas)
    ========================================================================== */
+const RED_NUMBERS = [1, 3, 5, 7, 9, 12, 14, 16, 18, 19, 21, 23, 25, 27, 30, 32, 34, 36];
+const WHEEL_NUMBERS = [0, 32, 15, 19, 4, 21, 2, 25, 17, 34, 6, 27, 13, 36, 11, 30, 8, 23, 10, 5, 24, 16, 33, 1, 20, 14, 31, 9, 22, 18, 29, 7, 28, 12, 35, 3, 26];
+
+let rouletteAngle = 0;
+let rouletteSpeed = 0;
+let isRouletteSpinning = false;
+
 function initRoulette() {
   const baseBetInput = document.getElementById("rt-base-bet");
   const systemSelect = document.getElementById("rt-system");
@@ -355,7 +373,9 @@ function initRoulette() {
 
   if (!baseBetInput || !winBtn) return;
 
-  // Labouchere sequence visibility toggle
+  // Draw initial canvas wheel
+  drawRouletteWheel();
+
   systemSelect.addEventListener("change", () => {
     playSound('click');
     if (systemSelect.value === ROULETTE_SYSTEMS.LABOUCHERE) {
@@ -384,15 +404,23 @@ function initRoulette() {
   }
 
   winBtn.addEventListener("click", () => {
-    playSound('win');
-    RouletteEngine.recordResult(true);
-    updateRouletteUI();
+    if (isRouletteSpinning) return;
+    playSound('click');
+    triggerRouletteSpinAnimation(() => {
+      playSound('win');
+      RouletteEngine.recordResult(true);
+      updateRouletteUI();
+    });
   });
 
   lossBtn.addEventListener("click", () => {
-    playSound('loss');
-    RouletteEngine.recordResult(false);
-    updateRouletteUI();
+    if (isRouletteSpinning) return;
+    playSound('click');
+    triggerRouletteSpinAnimation(() => {
+      playSound('loss');
+      RouletteEngine.recordResult(false);
+      updateRouletteUI();
+    });
   });
 
   undoBtn.addEventListener("click", () => {
@@ -407,33 +435,151 @@ function initRoulette() {
     syncRouletteParams();
   });
 
-  // Init params
   syncRouletteParams();
+}
+
+function drawRouletteWheel() {
+  const canvas = document.getElementById("roulette-canvas");
+  if (!canvas) return;
+
+  const ctx = canvas.getContext("2d");
+  const cx = 80;
+  const cy = 80;
+  const r = 76;
+
+  ctx.clearRect(0, 0, 160, 160);
+
+  // Draw outer casing ring
+  ctx.beginPath();
+  ctx.arc(cx, cy, r, 0, 2 * Math.PI);
+  ctx.fillStyle = '#02040a';
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(255,255,255,0.06)';
+  ctx.lineWidth = 4;
+  ctx.stroke();
+
+  // Draw slices
+  const sliceAngle = (2 * Math.PI) / 37;
+  for (let i = 0; i < 37; i++) {
+    const startAngle = rouletteAngle + (i * sliceAngle);
+    const endAngle = rouletteAngle + ((i + 1) * sliceAngle);
+    
+    const num = WHEEL_NUMBERS[i];
+    let color = '#0f172a'; // Black default
+    if (num === 0) color = '#10b981'; // Green
+    else if (RED_NUMBERS.includes(num)) color = '#f43f5e'; // Red
+
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.arc(cx, cy, r - 6, startAngle, endAngle);
+    ctx.closePath();
+    ctx.fillStyle = color;
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.03)';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+
+    // Small numbers text placement
+    ctx.save();
+    ctx.translate(cx, cy);
+    ctx.rotate(startAngle + sliceAngle / 2);
+    ctx.fillStyle = '#fff';
+    ctx.font = 'bold 7px Orbitron, sans-serif';
+    ctx.textAlign = 'right';
+    ctx.fillText(num, r - 16, 3);
+    ctx.restore();
+  }
+
+  // Draw inner turret ring
+  ctx.beginPath();
+  ctx.arc(cx, cy, 32, 0, 2 * Math.PI);
+  ctx.fillStyle = '#1e293b';
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(255,255,255,0.08)';
+  ctx.lineWidth = 2;
+  ctx.stroke();
+
+  // Inner center brass star
+  ctx.beginPath();
+  ctx.arc(cx, cy, 14, 0, 2 * Math.PI);
+  ctx.fillStyle = '#f59e0b';
+  ctx.fill();
+
+  // Draw top landing pointer arrow
+  ctx.beginPath();
+  ctx.moveTo(cx, cy - r + 2);
+  ctx.lineTo(cx - 6, cy - r + 12);
+  ctx.lineTo(cx + 6, cy - r + 12);
+  ctx.closePath();
+  ctx.fillStyle = '#00f2fe';
+  ctx.fill();
+  ctx.strokeStyle = '#fff';
+  ctx.lineWidth = 1;
+  ctx.stroke();
+}
+
+function triggerRouletteSpinAnimation(callback) {
+  isRouletteSpinning = true;
+  document.getElementById("rt-wheel-result").textContent = "Spinning...";
+  document.getElementById("rt-wheel-result").style.color = "var(--primary)";
+  
+  rouletteSpeed = Math.random() * 0.4 + 0.35; // Random initial speed
+  const friction = 0.975; // Deceleration rate
+
+  function animate() {
+    rouletteAngle += rouletteSpeed;
+    rouletteSpeed *= friction;
+    drawRouletteWheel();
+
+    if (rouletteSpeed > 0.002) {
+      requestAnimationFrame(animate);
+    } else {
+      isRouletteSpinning = false;
+      
+      // Calculate top slice number
+      // Top position is -Math.PI / 2. We align rotation to find which slot is at the pointer (1.5 * PI)
+      const sliceAngle = (2 * Math.PI) / 37;
+      let topIndexOffset = (1.5 * Math.PI - rouletteAngle) % (2 * Math.PI);
+      if (topIndexOffset < 0) topIndexOffset += 2 * Math.PI;
+      
+      const winningIndex = Math.floor(topIndexOffset / sliceAngle) % 37;
+      const num = WHEEL_NUMBERS[winningIndex];
+      const color = num === 0 ? 'GREEN' : (RED_NUMBERS.includes(num) ? 'RED' : 'BLACK');
+
+      const resultText = document.getElementById("rt-wheel-result");
+      resultText.textContent = `Landed: ${color} ${num}`;
+      
+      if (color === 'RED') resultText.style.color = 'var(--crimson)';
+      else if (color === 'GREEN') resultText.style.color = 'var(--emerald)';
+      else resultText.style.color = '#fff';
+
+      callback();
+    }
+  }
+  animate();
 }
 
 function updateRouletteUI() {
   const status = RouletteEngine.getCurrentStatus();
 
-  // Update recommendation card
+  // Update HUD dial and labels
   document.getElementById("rt-advice-choice").textContent = `$${status.nextBet.toFixed(2)}`;
   document.getElementById("rt-advice-explanation").textContent = status.explanation;
-  document.getElementById("rt-prob-val").textContent = `${status.winPercentage}%`;
-  document.getElementById("rt-prob-bar").style.width = `${status.winPercentage}%`;
+  setProgressRing("rt-gauge-fill", "rt-prob-val", status.winPercentage);
 
-  // Update statistics table
+  // Stats
   document.getElementById("rt-stat-profit").textContent = `$${status.netProfit.toFixed(2)}`;
   document.getElementById("rt-stat-profit").className = status.netProfit >= 0 ? 'text-success' : 'text-danger';
   document.getElementById("rt-stat-step").textContent = status.history.length + 1;
   document.getElementById("rt-stat-houseedge").textContent = `${status.houseEdge.toFixed(2)}%`;
 
-  // Render progression table list
+  // History list
   const historyList = document.getElementById("rt-history-list");
   historyList.innerHTML = '';
   
   if (status.history.length === 0) {
-    historyList.innerHTML = '<div class="text-muted" style="padding: 1rem; text-align: center;">No bets logged yet. Play your first spin!</div>';
+    historyList.innerHTML = '<div class="text-muted" style="padding: 1rem; text-align: center;">No spins logged. Click WIN/LOSS to spin!</div>';
   } else {
-    // Show last 6 rounds
     const displayHistory = [...status.history].reverse().slice(0, 6);
     displayHistory.forEach(h => {
       const card = document.createElement("div");
@@ -450,7 +596,6 @@ function updateRouletteUI() {
     });
   }
 
-  // Update charts
   updateRouletteChart();
 }
 
@@ -460,7 +605,6 @@ function updateRouletteChart() {
 
   const status = RouletteEngine.getCurrentStatus();
   
-  // Re-build cumulative profit array
   let currentSum = 0;
   const dataPoints = [0];
   const labels = ['Start'];
@@ -481,26 +625,24 @@ function updateRouletteChart() {
     data: {
       labels: labels,
       datasets: [{
-        label: 'Net Balance Trajectory ($)',
+        label: 'Balance ($)',
         data: dataPoints,
-        borderColor: '#06b6d4',
-        backgroundColor: 'rgba(6, 182, 212, 0.15)',
+        borderColor: '#00f2fe',
+        backgroundColor: 'rgba(0, 242, 254, 0.12)',
         fill: true,
         tension: 0.3,
         borderWidth: 2,
-        pointBackgroundColor: '#8b5cf6',
+        pointBackgroundColor: '#a855f7',
         pointHoverRadius: 6
       }]
     },
     options: {
       responsive: true,
       maintainAspectRatio: false,
-      plugins: {
-        legend: { display: false }
-      },
+      plugins: { legend: { display: false } },
       scales: {
         y: {
-          grid: { color: 'rgba(255, 255, 255, 0.05)' },
+          grid: { color: 'rgba(255, 255, 255, 0.04)' },
           ticks: { color: '#94a3b8' }
         },
         x: {
@@ -561,14 +703,12 @@ function initBaccarat() {
     updateBaccaratUI();
   });
 
-  // Initial draw
   updateBaccaratUI();
 }
 
 function updateBaccaratUI() {
   const analysis = BaccaratEngine.getAnalysis();
 
-  // Update recommendation HUD
   const adviceChoice = document.getElementById("bc-advice-choice");
   adviceChoice.textContent = analysis.advice;
   document.getElementById("bc-advice-explanation").textContent = analysis.explanation;
@@ -578,17 +718,19 @@ function updateBaccaratUI() {
   else if (analysis.recommendedBet === 'P') adviceChoice.classList.add('text-cyan');
   else adviceChoice.classList.add('text-success');
 
-  // Probability stats
-  document.getElementById("bc-prob-b").textContent = `${analysis.probabilities.Banker}%`;
+  // Probability radial gauge
+  setProgressRing("bc-gauge-fill", "bc-prob-b", analysis.probabilities.Banker);
+
+  // Shares table
   document.getElementById("bc-prob-p").textContent = `${analysis.probabilities.Player}%`;
   document.getElementById("bc-prob-t").textContent = `${analysis.probabilities.Tie}%`;
 
-  // Counts
+  // Stats
   document.getElementById("bc-stat-banker").textContent = analysis.counts.Banker;
   document.getElementById("bc-stat-player").textContent = analysis.counts.Player;
   document.getElementById("bc-stat-tie").textContent = analysis.counts.Tie;
 
-  // Render Bead Plate
+  // Bead Plate
   const beadGrid = document.getElementById("bc-bead-plate");
   beadGrid.innerHTML = '';
   analysis.roadmaps.beadPlate.forEach(item => {
@@ -607,10 +749,9 @@ function updateBaccaratUI() {
     beadGrid.appendChild(cell);
   });
 
-  // Render Big Road
+  // Big Road
   const roadGrid = document.getElementById("bc-big-road");
   roadGrid.innerHTML = '';
-  // Big Road is 6 rows by 12 columns
   for (let r = 0; r < 6; r++) {
     for (let c = 0; c < 12; c++) {
       const item = analysis.roadmaps.bigRoad[r][c];
@@ -634,7 +775,7 @@ function updateBaccaratUI() {
 function initPoker() {
   const pocketList = [];
   const boardList = [];
-  let pokerActiveTarget = 'pocket'; // 'pocket' or 'board'
+  let pokerActiveTarget = 'pocket';
 
   const pocketTargetBtn = document.getElementById("pk-select-pocket-btn");
   const boardTargetBtn = document.getElementById("pk-select-board-btn");
@@ -671,7 +812,6 @@ function initPoker() {
     renderPokerCards();
   });
 
-  // Render cards picker matrix
   const ranks = ['A', 'K', 'Q', 'J', '10', '9', '8', '7', '6', '5', '4', '3', '2'];
   const suits = ['s', 'h', 'd', 'c'];
   const cardGrid = document.getElementById("pk-card-grid");
@@ -685,16 +825,12 @@ function initPoker() {
         cardBtn.className = `deck-card ${isRed ? 'red-suit' : ''}`;
         cardBtn.innerHTML = `
           <div>${r}</div>
-          <div style="align-self: flex-end; font-size: 1.2rem;">${SUIT_SYMBOLS[s]}</div>
+          <div style="align-self: flex-end; font-size: 1.1rem;">${SUIT_SYMBOLS[s]}</div>
         `;
         
         cardBtn.addEventListener("click", () => {
           const cardStr = r + s;
-          
-          // Check duplicates
-          if (pocketList.includes(cardStr) || boardList.includes(cardStr)) {
-            return; // Already exists
-          }
+          if (pocketList.includes(cardStr) || boardList.includes(cardStr)) return;
 
           if (pokerActiveTarget === 'pocket') {
             if (pocketList.length < 2) {
@@ -717,7 +853,7 @@ function initPoker() {
   function renderPokerCards() {
     pocketDisplay.innerHTML = '';
     if (pocketList.length === 0) {
-      pocketDisplay.innerHTML = '<span class="text-muted">No Pocket Cards Selected</span>';
+      pocketDisplay.innerHTML = '<span class="text-muted">No Cards Selected</span>';
     } else {
       pocketList.forEach((card, idx) => {
         const rank = card.slice(0, -1);
@@ -727,7 +863,7 @@ function initPoker() {
         cardEl.className = `active-card ${isRed ? 'red-suit' : ''}`;
         cardEl.innerHTML = `
           <div>${rank}</div>
-          <div style="align-self: flex-end; font-size: 1.3rem;">${SUIT_SYMBOLS[suit]}</div>
+          <div style="align-self: flex-end; font-size: 1.15rem;">${SUIT_SYMBOLS[suit]}</div>
           <button class="remove-btn" onclick="removePokerPocket(${idx})">&times;</button>
         `;
         pocketDisplay.appendChild(cardEl);
@@ -736,7 +872,7 @@ function initPoker() {
 
     boardDisplay.innerHTML = '';
     if (boardList.length === 0) {
-      boardDisplay.innerHTML = '<span class="text-muted">No Community Cards Selected</span>';
+      boardDisplay.innerHTML = '<span class="text-muted">No Cards Selected</span>';
     } else {
       boardList.forEach((card, idx) => {
         const rank = card.slice(0, -1);
@@ -746,7 +882,7 @@ function initPoker() {
         cardEl.className = `active-card ${isRed ? 'red-suit' : ''}`;
         cardEl.innerHTML = `
           <div>${rank}</div>
-          <div style="align-self: flex-end; font-size: 1.3rem;">${SUIT_SYMBOLS[suit]}</div>
+          <div style="align-self: flex-end; font-size: 1.15rem;">${SUIT_SYMBOLS[suit]}</div>
           <button class="remove-btn" onclick="removePokerBoard(${idx})">&times;</button>
         `;
         boardDisplay.appendChild(cardEl);
@@ -766,7 +902,6 @@ function initPoker() {
     renderPokerCards();
   };
 
-  // Run Monte Carlo Equity Calculator
   calcBtn.addEventListener("click", () => {
     if (pocketList.length < 2) {
       alert("Please select 2 pocket cards.");
@@ -774,10 +909,9 @@ function initPoker() {
     }
     
     calcBtn.disabled = true;
-    calcBtn.textContent = 'Calculating Equity...';
+    calcBtn.textContent = 'Simulating Hands...';
     playSound('click');
     
-    // Simulate thinking delay for immersion
     setTimeout(() => {
       const opponents = parseInt(document.getElementById("pk-opponents").value, 10);
       const potSize = parseFloat(document.getElementById("pk-pot-size").value) || 100;
@@ -786,13 +920,12 @@ function initPoker() {
       const simResults = PokerEngine.runSimulation(pocketList, boardList, opponents, 800);
       const advice = PokerEngine.getAdvice(simResults.equity, potSize, callSize);
 
-      // Draw outcomes
+      // HUD Dial
       document.getElementById("pk-advice-choice").textContent = advice.action;
       document.getElementById("pk-advice-explanation").textContent = advice.explanation;
-      document.getElementById("pk-prob-val").textContent = `${simResults.equity}%`;
-      document.getElementById("pk-prob-bar").style.width = `${simResults.equity}%`;
+      setProgressRing("pk-gauge-fill", "pk-prob-val", simResults.equity);
 
-      // Stat tables
+      // Stats
       document.getElementById("pk-stat-hand").textContent = simResults.currentHandName;
       document.getElementById("pk-stat-oppequity").textContent = `${simResults.lossRate}%`;
       document.getElementById("pk-stat-potodds").textContent = `${advice.potOdds}%`;
@@ -840,7 +973,6 @@ function initCraps() {
     updateCrapsUI();
   });
 
-  // Bind Point Selector buttons
   const pointButtons = document.querySelectorAll(".cr-point-val-btn");
   pointButtons.forEach(btn => {
     btn.addEventListener("click", () => {
@@ -857,34 +989,30 @@ function initCraps() {
   function updateCrapsUI() {
     const analysis = CrapsEngine.getAnalysis(activePhase, activePoint);
 
-    // Update Advice Card
     document.getElementById("cr-advice-choice").textContent = analysis.advice;
     document.getElementById("cr-advice-explanation").textContent = analysis.explanation;
-    document.getElementById("cr-prob-val").textContent = `${analysis.winPercentage}%`;
-    document.getElementById("cr-prob-bar").style.width = `${analysis.winPercentage}%`;
-
-    // Render Bets Table
-    crapsBetsTable.innerHTML = '';
     
-    // Determine filtered bets (show recommended bets first, then show other bets)
+    // Radial dial
+    setProgressRing("cr-gauge-fill", "cr-prob-val", analysis.winPercentage);
+
+    crapsBetsTable.innerHTML = '';
     const filteredBets = [...analysis.allBets].sort((a, b) => b.recommended - a.recommended);
 
     filteredBets.forEach(bet => {
       const tr = document.createElement("tr");
       tr.innerHTML = `
-        <td style="padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05);">
+        <td style="padding: 0.85rem 1rem; border-bottom: 1px solid rgba(255,255,255,0.03);">
           <strong style="color: ${bet.recommended ? '#10b981' : '#f43f5e'}">${bet.name}</strong>
-          ${bet.recommended ? '<span class="badge" style="font-size:0.6rem; padding:0.1rem 0.4rem; margin-left:0.5rem; background:rgba(16,185,129,0.15); border-color:rgba(16,185,129,0.3); color:#10b981;">Best Bet</span>' : ''}
+          ${bet.recommended ? '<span class="badge" style="font-size:0.55rem; padding:0.1rem 0.3rem; margin-left:0.5rem; background:rgba(16,185,129,0.08); color:#10b981;">Best</span>' : ''}
         </td>
-        <td style="padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); font-weight:700;">${bet.houseEdge.toFixed(2)}%</td>
-        <td style="padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color:#94a3b8;">${bet.payout}</td>
-        <td style="padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); font-size:0.8rem; color:#94a3b8;">${bet.description}</td>
+        <td style="padding: 0.85rem 1rem; border-bottom: 1px solid rgba(255,255,255,0.03); font-weight:700;">${bet.houseEdge.toFixed(2)}%</td>
+        <td style="padding: 0.85rem 1rem; border-bottom: 1px solid rgba(255,255,255,0.03); color:#94a3b8;">${bet.payout}</td>
+        <td style="padding: 0.85rem 1rem; border-bottom: 1px solid rgba(255,255,255,0.03); font-size:0.8rem; color:#64748b;">${bet.description}</td>
       `;
       crapsBetsTable.appendChild(tr);
     });
   }
 
-  // Initial draw
   updateCrapsUI();
 }
 
@@ -931,9 +1059,8 @@ function calculateNextCustomBet() {
 
   const lastRound = CUSTOM_HISTORY[CUSTOM_HISTORY.length - 1];
   if (lastRound.won) {
-    return baseBet; // Reset on win
+    return baseBet;
   } else {
-    // Multiply bet on loss
     return lastRound.bet * mult;
   }
 }
@@ -956,27 +1083,24 @@ function updateCustomUI() {
   const nextBet = calculateNextCustomBet();
   const winProb = parseFloat(document.getElementById("cs-win-prob").value) || 50;
 
-  // Calculate stats
   const totalRounds = CUSTOM_HISTORY.length;
   const netProfit = CUSTOM_HISTORY.reduce((sum, h) => sum + h.profit, 0);
 
-  // Risk of ruin estimation (hitting 6 losses in a row)
   const pLoss = 1 - (winProb / 100);
   const ruinProbability = Math.min(99, Math.round(Math.pow(pLoss, 6) * 100));
 
-  // Update advisor card
   document.getElementById("cs-advice-choice").textContent = `$${nextBet.toFixed(2)}`;
-  document.getElementById("cs-advice-explanation").textContent = `Custom Betting Sequencer. Multiplier applied on losses. Total plays: ${totalRounds}. Expected risk of a 6-loss streak: ${ruinProbability}%.`;
-  document.getElementById("cs-prob-val").textContent = `${winProb}%`;
-  document.getElementById("cs-prob-bar").style.width = `${winProb}%`;
+  document.getElementById("cs-advice-explanation").textContent = `Custom Progression. Multiplier applied on losses. Plays: ${totalRounds}. 6-Loss streak probability: ${ruinProbability}%.`;
+  
+  // Radial dial
+  setProgressRing("cs-gauge-fill", "cs-prob-val", winProb);
 
-  // Update stats table
+  // Stats
   document.getElementById("cs-stat-profit").textContent = `$${netProfit.toFixed(2)}`;
   document.getElementById("cs-stat-profit").className = netProfit >= 0 ? 'text-success' : 'text-danger';
   document.getElementById("cs-stat-step").textContent = totalRounds + 1;
   document.getElementById("cs-stat-ruin").textContent = `${ruinProbability}%`;
 
-  // Render log
   const historyList = document.getElementById("cs-history-list");
   historyList.innerHTML = '';
 
@@ -1026,26 +1150,24 @@ function updateCustomChart() {
     data: {
       labels: labels,
       datasets: [{
-        label: 'Net Balance Trajectory ($)',
+        label: 'Balance ($)',
         data: dataPoints,
-        borderColor: '#8b5cf6',
-        backgroundColor: 'rgba(139, 92, 246, 0.15)',
+        borderColor: '#a855f7',
+        backgroundColor: 'rgba(168, 85, 247, 0.12)',
         fill: true,
         tension: 0.3,
         borderWidth: 2,
-        pointBackgroundColor: '#06b6d4',
+        pointBackgroundColor: '#00f2fe',
         pointHoverRadius: 6
       }]
     },
     options: {
       responsive: true,
       maintainAspectRatio: false,
-      plugins: {
-        legend: { display: false }
-      },
+      plugins: { legend: { display: false } },
       scales: {
         y: {
-          grid: { color: 'rgba(255, 255, 255, 0.05)' },
+          grid: { color: 'rgba(255, 255, 255, 0.04)' },
           ticks: { color: '#94a3b8' }
         },
         x: {
@@ -1061,9 +1183,6 @@ function updateCustomChart() {
    AUTHENTICATION & ANALYTICS EXTENSIONS
    ========================================================================== */
 
-let authMode = 'login'; // 'login' or 'register'
-let analyticsChartInstance = null;
-
 function initAuth() {
   const authForm = document.getElementById("auth-form");
   const authToggleLink = document.getElementById("auth-toggle-link");
@@ -1074,7 +1193,6 @@ function initAuth() {
 
   if (!authForm) return;
 
-  // Toggle Login/Register
   authToggleLink.addEventListener("click", (e) => {
     e.preventDefault();
     playSound('click');
@@ -1093,7 +1211,6 @@ function initAuth() {
     }
   });
 
-  // Submit Handler
   authForm.addEventListener("submit", (e) => {
     e.preventDefault();
     playSound('click');
@@ -1111,14 +1228,11 @@ function initAuth() {
     })
     .then(async res => {
       const data = await res.json();
-      if (!res.ok) {
-        throw new Error(data.error || 'Authentication failed');
-      }
+      if (!res.ok) throw new Error(data.error || 'Authentication failed');
       return data;
     })
     .then(data => {
       if (authMode === 'register') {
-        // Success register
         playSound('win');
         alert(data.message);
         authMode = 'login';
@@ -1127,7 +1241,6 @@ function initAuth() {
         authSubmitBtn.textContent = 'LOG IN';
         document.getElementById("auth-password").value = '';
       } else {
-        // Success login
         playSound('win');
         document.getElementById("auth-username").value = '';
         document.getElementById("auth-password").value = '';
@@ -1137,7 +1250,6 @@ function initAuth() {
         document.getElementById("header-username").textContent = data.username.toUpperCase();
         logoutBtn.style.display = 'inline-block';
         
-        // Track initial tab view
         trackTabAccess('vision-panel');
       }
     })
@@ -1148,7 +1260,6 @@ function initAuth() {
     });
   });
 
-  // Logout Handler
   if (logoutBtn) {
     logoutBtn.addEventListener("click", () => {
       playSound('click');
@@ -1184,7 +1295,6 @@ function checkSession() {
 }
 
 function trackTabAccess(panelId) {
-  // Translate panels to friendly game names
   const gameMap = {
     'vision-panel': 'Screenshot OCR Scan',
     'blackjack-panel': 'Blackjack Strategizer',
@@ -1204,14 +1314,14 @@ function trackTabAccess(panelId) {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ game: gameFriendly })
   })
-  .catch(err => console.warn('Failed to log analytic event:', err));
+  .catch(err => console.warn('Analytic event warning:', err));
 }
 
 function loadAnalytics() {
   fetch('/api/analytics')
   .then(res => {
     if (res.ok) return res.json();
-    throw new Error('Could not load analytics');
+    throw new Error('Analytics failed');
   })
   .then(data => {
     drawAnalyticsChart(data);
@@ -1224,7 +1334,6 @@ function drawAnalyticsChart(data) {
   const canvas = document.getElementById("analyticsChart");
   if (!canvas) return;
 
-  // Extract counts and names
   const labels = data.map(item => item.game);
   const counts = data.map(item => item.count);
 
@@ -1233,11 +1342,9 @@ function drawAnalyticsChart(data) {
   }
 
   const ctx = canvas.getContext('2d');
-  
-  // Custom gradient bar styling
   const gradient = ctx.createLinearGradient(0, 0, 400, 0);
-  gradient.addColorStop(0, '#8b5cf6');
-  gradient.addColorStop(1, '#06b6d4');
+  gradient.addColorStop(0, '#a855f7');
+  gradient.addColorStop(1, '#00f2fe');
 
   analyticsChartInstance = new Chart(ctx, {
     type: 'bar',
@@ -1254,13 +1361,11 @@ function drawAnalyticsChart(data) {
     options: {
       responsive: true,
       maintainAspectRatio: false,
-      indexAxis: 'y', // Horizontal bars
-      plugins: {
-        legend: { display: false }
-      },
+      indexAxis: 'y',
+      plugins: { legend: { display: false } },
       scales: {
         x: {
-          grid: { color: 'rgba(255, 255, 255, 0.05)' },
+          grid: { color: 'rgba(255, 255, 255, 0.04)' },
           ticks: { color: '#94a3b8', stepSize: 1 }
         },
         y: {
@@ -1281,7 +1386,7 @@ function compileAnalyticsInsights(data) {
   if (data.length === 0) {
     insightsList.innerHTML = `
       <div class="step-card">
-        <div class="step-number" style="color:var(--gold); border-color:rgba(251,191,36,0.3)">AI</div>
+        <div class="step-number" style="color:var(--gold); border-color:rgba(245,158,11,0.3)">AI</div>
         <div class="step-content">
           <div class="step-title">Analytic Insight</div>
           <div class="step-desc">Awaiting more session data to compile statistics. Switch between game panels to track usage.</div>
@@ -1291,12 +1396,11 @@ function compileAnalyticsInsights(data) {
     return;
   }
 
-  // Identify most accessed game
   const topGame = data[0];
   const insightCard = document.createElement("div");
   insightCard.className = "step-card";
   insightCard.innerHTML = `
-    <div class="step-number" style="color:var(--gold); border-color:rgba(251,191,36,0.3)">🏆</div>
+    <div class="step-number" style="color:var(--gold); border-color:var(--gold-glow)">🏆</div>
     <div class="step-content">
       <div class="step-title">Most Active Deck</div>
       <div class="step-desc"><strong>${topGame.game}</strong> is your most used system. You have accessed it <strong>${topGame.count}</strong> times this session.</div>
@@ -1304,7 +1408,6 @@ function compileAnalyticsInsights(data) {
   `;
   insightsList.appendChild(insightCard);
 
-  // General recommendation based on active game
   const secondaryCard = document.createElement("div");
   secondaryCard.className = "step-card";
   
@@ -1334,4 +1437,3 @@ function compileAnalyticsInsights(data) {
   `;
   insightsList.appendChild(secondaryCard);
 }
-

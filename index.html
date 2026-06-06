@@ -3,18 +3,19 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AegisBet | Premium Casino Game Strategizer & Win Predictor</title>
+  <title>AegisBet | Premium Full-Stack Casino Strategy Deck</title>
   <meta name="description" content="AI-powered live gambling strategy companion. Upload screenshots or log game state to predict win probabilities and compute mathematically optimal decisions.">
   <link rel="stylesheet" href="style.css">
-  <!-- Chart.js for Progression Trajectory plotting -->
+  <!-- Chart.js for Progression plots -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <!-- Lucide Icons CDN -->
   <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 <body>
+
   <!-- Glassmorphic Authentication Modal Overlay -->
   <div id="auth-modal" class="auth-modal-overlay">
-    <div class="glass-card auth-card" style="box-shadow: 0 10px 40px rgba(0,0,0,0.8); max-width: 420px; width: 90%; padding: 2.5rem; border-color: rgba(157, 92, 246, 0.3);">
+    <div class="glass-card auth-card" style="border-color: rgba(168, 85, 247, 0.3);">
       <div style="text-align: center; margin-bottom: 1.5rem;">
         <div class="logo-icon" style="margin: 0 auto 0.5rem auto; font-size: 1.8rem; width: 50px; height: 50px;">Æ</div>
         <h2 style="font-family: 'Orbitron', sans-serif; font-weight: 900; background: linear-gradient(to right, #ffffff, #a855f7); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">AegisBet Access</h2>
@@ -29,7 +30,7 @@
         </div>
         <div class="form-group" style="margin-bottom: 0.75rem;">
           <label for="auth-password">Password</label>
-          <input type="password" id="auth-password" required placeholder="Enter password" style="width: 100%; background: rgba(0,0,0,0.3); border: 1px solid var(--glass-border); color: var(--text-main); font-family: inherit; font-size: 0.85rem; padding: 0.65rem 0.85rem; border-radius: var(--radius-sm); outline: none;">
+          <input type="password" id="auth-password" required placeholder="Enter password" style="width: 100%; background: rgba(0,0,0,0.35); border: 1px solid var(--glass-border); color: var(--text-main); font-family: inherit; font-size: 0.85rem; padding: 0.65rem 0.85rem; border-radius: var(--radius-sm); outline: none;">
         </div>
         
         <div id="auth-error-msg" style="color: var(--crimson); font-size: 0.8rem; margin-bottom: 1rem; display: none; font-weight: 600;"></div>
@@ -55,7 +56,7 @@
       </div>
     </div>
     <div class="header-actions">
-      <span id="user-profile-badge" class="badge" style="display: none; background: rgba(157, 92, 246, 0.15); border-color: rgba(157, 92, 246, 0.3); color: #c084fc; font-family: 'Orbitron', sans-serif;">USER: <span id="header-username">GUEST</span></span>
+      <span id="user-profile-badge" class="badge" style="display: none; background: rgba(168, 85, 247, 0.15); border-color: rgba(168, 85, 247, 0.3); color: #c084fc; font-family: 'Orbitron', sans-serif;">USER: <span id="header-username">GUEST</span></span>
       <button class="sound-toggle-btn" id="sound-toggle" title="Mute Sound Effects">
         <i data-lucide="volume-2"></i>
       </button>
@@ -89,7 +90,7 @@
           <li class="nav-item" id="craps-tab" data-target="craps-panel">
             <button><i data-lucide="dices"></i> Craps Odds</button>
           </li>
-           <li class="nav-item" id="custom-tab" data-target="custom-panel">
+          <li class="nav-item" id="custom-tab" data-target="custom-panel">
             <button><i data-lucide="sliders"></i> Custom Sequencer</button>
           </li>
           <li class="nav-item" id="analytics-tab" data-target="analytics-panel">
@@ -98,7 +99,7 @@
         </ul>
       </div>
 
-      <div class="glass-card" style="padding: 0.85rem; margin: 1.5rem 0.5rem 1rem 0.5rem; border-color: rgba(0, 242, 254, 0.15); background: rgba(0, 242, 254, 0.02); border-radius: var(--radius-sm); font-size: 0.75rem; box-shadow: var(--shadow-glow);">
+      <div class="glass-card" style="padding: 0.85rem; margin: 1.5rem 0.5rem 1rem 0.5rem; border-color: rgba(0, 242, 254, 0.15); background: rgba(0, 242, 254, 0.02); border-radius: var(--radius-sm); box-shadow: var(--shadow-glow);">
         <div style="display: flex; align-items: center; gap: 0.5rem; font-weight: 800; color: var(--secondary); margin-bottom: 0.25rem; font-family: 'Orbitron', sans-serif; font-size: 0.7rem;">
           <span class="pulse-primary" style="display: inline-block; width: 6px; height: 6px; background: var(--secondary); border-radius: 50%;"></span>
           AEGIS AI ENGINE
@@ -130,17 +131,20 @@
             <div class="card-title"><i data-lucide="upload-cloud"></i> Drop Zone & Capture Console</div>
             
             <!-- Upload Box -->
-            <div id="vs-dropzone" style="border: 2px dashed rgba(6, 182, 212, 0.4); padding: 3rem; text-align: center; border-radius: var(--radius-lg); background: rgba(6, 182, 212, 0.02); cursor: pointer; transition: var(--transition-normal); margin-bottom: 1.5rem;">
+            <div id="vs-dropzone" style="border: 2px dashed rgba(0, 242, 254, 0.25); padding: 3rem; text-align: center; border-radius: var(--radius-lg); background: rgba(0, 242, 254, 0.01); cursor: pointer; transition: var(--transition-normal); margin-bottom: 1.5rem;">
               <i data-lucide="image" style="width: 48px; height: 48px; color: var(--secondary); margin-bottom: 1rem;"></i>
-              <h3 style="font-family: 'Outfit', sans-serif; margin-bottom: 0.5rem;">Drag & Drop Screenshot here</h3>
+              <h3 style="font-family: 'Space Grotesk', sans-serif; margin-bottom: 0.5rem;">Drag & Drop Screenshot here</h3>
               <p class="text-muted" style="font-size: 0.85rem; margin-bottom: 1.5rem;">Supports JPG, PNG screenshots from any casino client</p>
               <button class="btn btn-cyan" onclick="document.getElementById('vs-file-input').click()">Browse Local Files</button>
               <input type="file" id="vs-file-input" style="display: none;" accept="image/*">
             </div>
 
-            <!-- Preview & Scanning -->
-            <div id="vs-preview-container" style="display: none; position: relative; border-radius: var(--radius-md); overflow: hidden; max-height: 320px; background: #000; border: 1px solid var(--glass-border); margin-bottom: 1.5rem;">
-              <img id="vs-preview-img" src="" style="width: 100%; height: auto; display: block; opacity: 0.7;">
+            <!-- Preview & Scanning Bounding Boxes wrapper -->
+            <div id="vs-preview-container" style="display: none; position: relative; border-radius: var(--radius-md); overflow: hidden; background: #000; border: 1px solid var(--glass-border); margin-bottom: 1.5rem; text-align: center;">
+              <div class="vision-canvas-wrapper">
+                <img id="vs-preview-img" src="" style="max-width: 100%; height: auto; display: block; opacity: 0.7; margin: 0 auto;">
+                <div id="vs-bounding-boxes-overlay" style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; pointer-events: none;"></div>
+              </div>
               <!-- Scanning green line -->
               <div id="vs-scan-overlay" style="display: none; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--secondary); box-shadow: 0 0 12px var(--secondary); animation: scanLine 2s linear infinite;"></div>
             </div>
@@ -240,14 +244,24 @@
               <div class="advisor-desc" id="bj-advice-explanation">Add cards to view the optimal basic strategy decision.</div>
             </div>
 
+            <!-- SVG Radial win dial -->
             <div class="glass-card">
               <div class="card-title"><i data-lucide="activity"></i> Probability HUD</div>
-              <div class="metric-label">Estimated Win Probability</div>
-              <div style="display: flex; align-items: baseline; gap: 0.5rem; margin-top: 0.25rem;">
-                <span class="metric-value value-cyan" id="bj-prob-val">50%</span>
-              </div>
-              <div class="probability-bar-container">
-                <div class="probability-bar" id="bj-prob-bar" style="width: 50%;"></div>
+              <div class="radial-gauge-container">
+                <svg class="radial-gauge-svg">
+                  <defs>
+                    <linearGradient id="gauge-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stop-color="#8b5cf6" />
+                      <stop offset="100%" stop-color="#00f2fe" />
+                    </linearGradient>
+                  </defs>
+                  <circle class="radial-gauge-bg-ring" cx="70" cy="70" r="45"></circle>
+                  <circle class="radial-gauge-fill-ring" id="bj-gauge-fill" cx="70" cy="70" r="45" style="stroke-dashoffset: 282.7;"></circle>
+                </svg>
+                <div class="radial-gauge-text">
+                  <span class="gauge-pct" id="bj-prob-val">0%</span>
+                  <span class="gauge-label">Win Odds</span>
+                </div>
               </div>
             </div>
 
@@ -341,12 +355,27 @@
               <div class="advisor-desc" id="rt-advice-explanation">Awaiting spin entries.</div>
             </div>
 
+            <!-- Interactive Roulette wheel spin canvas -->
+            <div class="glass-card" style="text-align: center;">
+              <div class="card-title" style="justify-content: center;"><i data-lucide="aperture"></i> Wheel Simulator</div>
+              <div style="position: relative; display: inline-block; margin-bottom: 0.5rem;">
+                <canvas id="roulette-canvas" width="160" height="160" style="display: block; border-radius: 50%; box-shadow: 0 0 15px rgba(0, 242, 254, 0.1); border: 2px solid var(--glass-border);"></canvas>
+              </div>
+              <div id="rt-wheel-result" style="font-family: 'Orbitron', sans-serif; font-size: 0.95rem; font-weight: 700; color: var(--secondary);">Wheel Stopped</div>
+            </div>
+
+            <!-- SVG Radial Win Dial -->
             <div class="glass-card">
               <div class="card-title"><i data-lucide="percent"></i> Win Probability</div>
-              <div class="metric-label">Single Spin Success Rate</div>
-              <span class="metric-value value-cyan" id="rt-prob-val">48.65%</span>
-              <div class="probability-bar-container">
-                <div class="probability-bar" id="rt-prob-bar" style="width: 48%;"></div>
+              <div class="radial-gauge-container">
+                <svg class="radial-gauge-svg">
+                  <circle class="radial-gauge-bg-ring" cx="70" cy="70" r="45"></circle>
+                  <circle class="radial-gauge-fill-ring" id="rt-gauge-fill" cx="70" cy="70" r="45" style="stroke-dashoffset: 144.18;"></circle> <!-- ~49% -->
+                </svg>
+                <div class="radial-gauge-text">
+                  <span class="gauge-pct" id="rt-prob-val">48%</span>
+                  <span class="gauge-label">Spin Odds</span>
+                </div>
               </div>
             </div>
 
@@ -427,6 +456,21 @@
               <div class="advisor-desc" id="bc-advice-explanation">Banker wagers have the lowest mathematical edge.</div>
             </div>
 
+            <!-- SVG Radial Win Dial for Banker -->
+            <div class="glass-card">
+              <div class="card-title"><i data-lucide="percent"></i> Win Probability</div>
+              <div class="radial-gauge-container">
+                <svg class="radial-gauge-svg">
+                  <circle class="radial-gauge-bg-ring" cx="70" cy="70" r="45"></circle>
+                  <circle class="radial-gauge-fill-ring" id="bc-gauge-fill" cx="70" cy="70" r="45" style="stroke-dashoffset: 152.65;"></circle> <!-- ~46% -->
+                </svg>
+                <div class="radial-gauge-text">
+                  <span class="gauge-pct" id="bc-prob-b">46%</span>
+                  <span class="gauge-label">Banker Odds</span>
+                </div>
+              </div>
+            </div>
+
             <!-- Trend Mode -->
             <div class="glass-card">
               <div class="card-title"><i data-lucide="git-branch"></i> Analysis Mode</div>
@@ -440,18 +484,13 @@
             <!-- Live Probability breakdown -->
             <div class="glass-card">
               <div class="card-title"><i data-lucide="bar-chart-2"></i> Shoe Win Shares</div>
-              
               <div class="info-row">
-                <span style="color:#ef4444; font-weight:700;">Banker Odds</span>
-                <span id="bc-prob-b" class="font-outfit" style="font-weight: 700; color:#ef4444;">46%</span>
+                <span style="color:var(--crimson); font-weight:700;">Player Odds</span>
+                <span id="bc-prob-p" class="font-outfit" style="font-weight: 700; color:var(--secondary);">45%</span>
               </div>
               <div class="info-row">
-                <span style="color:#06b6d4; font-weight:700;">Player Odds</span>
-                <span id="bc-prob-p" class="font-outfit" style="font-weight: 700; color:#06b6d4;">45%</span>
-              </div>
-              <div class="info-row">
-                <span style="color:#10b981; font-weight:700;">Tie Odds</span>
-                <span id="bc-prob-t" class="font-outfit" style="font-weight: 700; color:#10b981;">9%</span>
+                <span style="color:var(--emerald); font-weight:700;">Tie Odds</span>
+                <span id="bc-prob-t" class="font-outfit" style="font-weight: 700; color:var(--emerald);">9%</span>
               </div>
             </div>
 
@@ -562,14 +601,18 @@
               </div>
             </div>
 
-            <!-- Stats -->
+            <!-- SVG Radial Win Dial -->
             <div class="glass-card">
               <div class="card-title"><i data-lucide="bar-chart-3"></i> Simulation Odds</div>
-              
-              <div class="metric-label">Estimated Win Equity</div>
-              <span class="metric-value value-cyan" id="pk-prob-val">0%</span>
-              <div class="probability-bar-container" style="margin-bottom: 1rem;">
-                <div class="probability-bar" id="pk-prob-bar" style="width: 0%;"></div>
+              <div class="radial-gauge-container" style="margin-bottom: 1rem;">
+                <svg class="radial-gauge-svg">
+                  <circle class="radial-gauge-bg-ring" cx="70" cy="70" r="45"></circle>
+                  <circle class="radial-gauge-fill-ring" id="pk-gauge-fill" cx="70" cy="70" r="45" style="stroke-dashoffset: 282.7;"></circle>
+                </svg>
+                <div class="radial-gauge-text">
+                  <span class="gauge-pct" id="pk-prob-val">0%</span>
+                  <span class="gauge-label">Hand Equity</span>
+                </div>
               </div>
 
               <div class="info-row">
@@ -647,12 +690,18 @@
               <div class="advisor-desc" id="cr-advice-explanation">Come-out Phase advice text here.</div>
             </div>
 
+            <!-- SVG Radial Win Dial -->
             <div class="glass-card">
               <div class="card-title"><i data-lucide="activity"></i> Roll Probability</div>
-              <div class="metric-label">Winning Roll Odds</div>
-              <span class="metric-value value-green" id="cr-prob-val">49.3%</span>
-              <div class="probability-bar-container">
-                <div class="probability-bar" id="cr-prob-bar" style="width: 49%;"></div>
+              <div class="radial-gauge-container">
+                <svg class="radial-gauge-svg">
+                  <circle class="radial-gauge-bg-ring" cx="70" cy="70" r="45"></circle>
+                  <circle class="radial-gauge-fill-ring" id="cr-gauge-fill" cx="70" cy="70" r="45" style="stroke-dashoffset: 141.35;"></circle> <!-- ~50% -->
+                </svg>
+                <div class="radial-gauge-text">
+                  <span class="gauge-pct" id="cr-prob-val">49%</span>
+                  <span class="gauge-label">Wager Odds</span>
+                </div>
               </div>
             </div>
 
@@ -728,12 +777,18 @@
               <div class="advisor-desc" id="cs-advice-explanation">Awaiting iterations.</div>
             </div>
 
+            <!-- SVG Radial Win Dial -->
             <div class="glass-card">
               <div class="card-title"><i data-lucide="percent"></i> Win Probability</div>
-              <div class="metric-label">Calculated Win Odds</div>
-              <span class="metric-value value-purple" id="cs-prob-val">50%</span>
-              <div class="probability-bar-container">
-                <div class="probability-bar" id="cs-prob-bar" style="width: 50%;"></div>
+              <div class="radial-gauge-container">
+                <svg class="radial-gauge-svg">
+                  <circle class="radial-gauge-bg-ring" cx="70" cy="70" r="45"></circle>
+                  <circle class="radial-gauge-fill-ring" id="cs-gauge-fill" cx="70" cy="70" r="45" style="stroke-dashoffset: 141.35;"></circle>
+                </svg>
+                <div class="radial-gauge-text">
+                  <span class="gauge-pct" id="cs-prob-val">50%</span>
+                  <span class="gauge-label">Play Odds</span>
+                </div>
               </div>
             </div>
 
@@ -796,7 +851,6 @@
           </div>
         </div>
       </section>
-
 
     </main>
   </div>
