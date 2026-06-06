@@ -1,0 +1,26 @@
+# SQLite Local Database (must keep local, do not push to public Git)
+database.db
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+
+# Python cache & compiled scripts
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Virtual Environments
+venv/
+.venv/
+env/
+
+# Operating System files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db

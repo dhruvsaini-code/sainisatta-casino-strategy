@@ -1,0 +1,813 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AegisBet | Premium Casino Game Strategizer & Win Predictor</title>
+  <meta name="description" content="AI-powered live gambling strategy companion. Upload screenshots or log game state to predict win probabilities and compute mathematically optimal decisions.">
+  <link rel="stylesheet" href="style.css">
+  <!-- Chart.js for Progression Trajectory plotting -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+  <!-- Glassmorphic Authentication Modal Overlay -->
+  <div id="auth-modal" class="auth-modal-overlay">
+    <div class="glass-card auth-card" style="box-shadow: 0 10px 40px rgba(0,0,0,0.8); max-width: 420px; width: 90%; padding: 2.5rem; border-color: rgba(157, 92, 246, 0.3);">
+      <div style="text-align: center; margin-bottom: 1.5rem;">
+        <div class="logo-icon" style="margin: 0 auto 0.5rem auto; font-size: 1.8rem; width: 50px; height: 50px;">Æ</div>
+        <h2 style="font-family: 'Orbitron', sans-serif; font-weight: 900; background: linear-gradient(to right, #ffffff, #a855f7); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">AegisBet Access</h2>
+        <p class="text-muted" style="font-size: 0.8rem; margin-top: 0.25rem;">Live Mathematical Strategy Deck</p>
+      </div>
+
+      <!-- Login / Register Form -->
+      <form id="auth-form">
+        <div class="form-group">
+          <label for="auth-username">Username</label>
+          <input type="text" id="auth-username" required placeholder="Enter username">
+        </div>
+        <div class="form-group" style="margin-bottom: 0.75rem;">
+          <label for="auth-password">Password</label>
+          <input type="password" id="auth-password" required placeholder="Enter password" style="width: 100%; background: rgba(0,0,0,0.3); border: 1px solid var(--glass-border); color: var(--text-main); font-family: inherit; font-size: 0.85rem; padding: 0.65rem 0.85rem; border-radius: var(--radius-sm); outline: none;">
+        </div>
+        
+        <div id="auth-error-msg" style="color: var(--crimson); font-size: 0.8rem; margin-bottom: 1rem; display: none; font-weight: 600;"></div>
+        
+        <button type="submit" class="btn btn-cyan" id="auth-submit-btn" style="width: 100%; height: 44px; margin-bottom: 1rem;">LOG IN</button>
+      </form>
+
+      <!-- Toggle prompt -->
+      <div style="text-align: center; font-size: 0.8rem;">
+        <span id="auth-toggle-desc" class="text-secondary">Don't have an account?</span>
+        <a href="#" id="auth-toggle-link" style="color: var(--secondary); font-weight: 700; text-decoration: none; margin-left: 0.25rem;">Register Here</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Top Navigation Bar -->
+  <header>
+    <div class="logo-container">
+      <div class="logo-icon">Æ</div>
+      <div>
+        <h1 class="brand-name">AegisBet</h1>
+        <span class="badge">PRO STRATEGIZER V3.0</span>
+      </div>
+    </div>
+    <div class="header-actions">
+      <span id="user-profile-badge" class="badge" style="display: none; background: rgba(157, 92, 246, 0.15); border-color: rgba(157, 92, 246, 0.3); color: #c084fc; font-family: 'Orbitron', sans-serif;">USER: <span id="header-username">GUEST</span></span>
+      <button class="sound-toggle-btn" id="sound-toggle" title="Mute Sound Effects">
+        <i data-lucide="volume-2"></i>
+      </button>
+      <button class="btn btn-secondary" id="logout-btn" style="display: none; padding: 0.35rem 0.75rem; font-size: 0.75rem; border-radius: var(--radius-xs);"><i data-lucide="log-out" style="width: 12px; height: 12px;"></i> Logout</button>
+    </div>
+  </header>
+
+  <!-- Sidebar & Dashboard Workspace -->
+  <div class="dashboard-container">
+    
+    <!-- Left Navigation Sidebar -->
+    <aside>
+      <div>
+        <div class="sidebar-title">Strategy Deck</div>
+        <ul class="nav-list">
+          <li class="nav-item active" id="vision-tab" data-target="vision-panel">
+            <button><i data-lucide="scan-eye"></i> Screenshot Scan</button>
+          </li>
+          <li class="nav-item" id="blackjack-tab" data-target="blackjack-panel">
+            <button><i data-lucide="spade"></i> Blackjack Strategy</button>
+          </li>
+          <li class="nav-item" id="roulette-tab" data-target="roulette-panel">
+            <button><i data-lucide="refresh-cw"></i> Roulette Sequence</button>
+          </li>
+          <li class="nav-item" id="baccarat-tab" data-target="baccarat-panel">
+            <button><i data-lucide="award"></i> Baccarat Roads</button>
+          </li>
+          <li class="nav-item" id="poker-tab" data-target="poker-panel">
+            <button><i data-lucide="club"></i> Hold'em Equity</button>
+          </li>
+          <li class="nav-item" id="craps-tab" data-target="craps-panel">
+            <button><i data-lucide="dices"></i> Craps Odds</button>
+          </li>
+           <li class="nav-item" id="custom-tab" data-target="custom-panel">
+            <button><i data-lucide="sliders"></i> Custom Sequencer</button>
+          </li>
+          <li class="nav-item" id="analytics-tab" data-target="analytics-panel">
+            <button><i data-lucide="bar-chart-2"></i> Engine Analytics</button>
+          </li>
+        </ul>
+      </div>
+
+      <div class="glass-card" style="padding: 0.85rem; margin: 1.5rem 0.5rem 1rem 0.5rem; border-color: rgba(0, 242, 254, 0.15); background: rgba(0, 242, 254, 0.02); border-radius: var(--radius-sm); font-size: 0.75rem; box-shadow: var(--shadow-glow);">
+        <div style="display: flex; align-items: center; gap: 0.5rem; font-weight: 800; color: var(--secondary); margin-bottom: 0.25rem; font-family: 'Orbitron', sans-serif; font-size: 0.7rem;">
+          <span class="pulse-primary" style="display: inline-block; width: 6px; height: 6px; background: var(--secondary); border-radius: 50%;"></span>
+          AEGIS AI ENGINE
+        </div>
+        <p style="color: var(--text-secondary); font-size: 0.65rem; line-height: 1.3;">Neural layout recognition & EV math models running client-side.</p>
+      </div>
+
+      <div class="sidebar-footer">
+        <p>AegisBet is a mathematical companion. Play responsibly.</p>
+      </div>
+    </aside>
+
+    <!-- Main Workspace -->
+    <main>
+
+      <!-- ====================================================================
+           SCREENSHOT OCR ANALYZER PANEL
+           ==================================================================== -->
+      <section class="panel active" id="vision-panel">
+        <div class="panel-header">
+          <div class="panel-title">
+            <h2>AI Screenshot Analyzer</h2>
+            <p>Upload a screenshot of your ongoing game to automatically extract the layout and calculate the optimal move.</p>
+          </div>
+        </div>
+
+        <div class="grid-container">
+          <div class="glass-card">
+            <div class="card-title"><i data-lucide="upload-cloud"></i> Drop Zone & Capture Console</div>
+            
+            <!-- Upload Box -->
+            <div id="vs-dropzone" style="border: 2px dashed rgba(6, 182, 212, 0.4); padding: 3rem; text-align: center; border-radius: var(--radius-lg); background: rgba(6, 182, 212, 0.02); cursor: pointer; transition: var(--transition-normal); margin-bottom: 1.5rem;">
+              <i data-lucide="image" style="width: 48px; height: 48px; color: var(--secondary); margin-bottom: 1rem;"></i>
+              <h3 style="font-family: 'Outfit', sans-serif; margin-bottom: 0.5rem;">Drag & Drop Screenshot here</h3>
+              <p class="text-muted" style="font-size: 0.85rem; margin-bottom: 1.5rem;">Supports JPG, PNG screenshots from any casino client</p>
+              <button class="btn btn-cyan" onclick="document.getElementById('vs-file-input').click()">Browse Local Files</button>
+              <input type="file" id="vs-file-input" style="display: none;" accept="image/*">
+            </div>
+
+            <!-- Preview & Scanning -->
+            <div id="vs-preview-container" style="display: none; position: relative; border-radius: var(--radius-md); overflow: hidden; max-height: 320px; background: #000; border: 1px solid var(--glass-border); margin-bottom: 1.5rem;">
+              <img id="vs-preview-img" src="" style="width: 100%; height: auto; display: block; opacity: 0.7;">
+              <!-- Scanning green line -->
+              <div id="vs-scan-overlay" style="display: none; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--secondary); box-shadow: 0 0 12px var(--secondary); animation: scanLine 2s linear infinite;"></div>
+            </div>
+
+            <!-- Custom Scanner Keyframes -->
+            <style>
+              @keyframes scanLine {
+                0% { top: 0%; }
+                50% { top: 100%; }
+                100% { top: 0%; }
+              }
+            </style>
+
+            <!-- Logging Terminal -->
+            <div class="card-title" style="font-size: 0.95rem; margin-top: 1rem;"><i data-lucide="terminal"></i> Scanner Activity Stream</div>
+            <div id="vs-console-logs" style="background: rgba(0, 0, 0, 0.5); border: 1px solid var(--glass-border); border-radius: var(--radius-md); padding: 1rem; font-family: monospace; font-size: 0.8rem; height: 160px; overflow-y: auto; color: #a4b3c6;">
+              <div class="text-muted">Awaiting screenshot stream file feed...</div>
+            </div>
+          </div>
+
+          <!-- Tutorial Sidebar -->
+          <div class="glass-card">
+            <div class="card-title text-gold"><i data-lucide="help-circle"></i> Strategy Assistant Guide</div>
+            <p style="font-size: 0.9rem; margin-bottom: 1rem;">
+              You can play on **any** online betting site or casino software, take a screenshot of your screen, and upload it here.
+            </p>
+            <div class="step-sequence">
+              <div class="step-card" style="padding: 0.75rem;">
+                <div class="step-number" style="width: 24px; height: 24px; font-size: 0.75rem;">1</div>
+                <div class="step-content">
+                  <div class="step-title" style="font-size: 0.85rem;">Snap Screenshot</div>
+                  <div class="step-desc" style="font-size: 0.75rem;">Mac: Cmd+Shift+4 | Windows: Win+Shift+S</div>
+                </div>
+              </div>
+              <div class="step-card" style="padding: 0.75rem;">
+                <div class="step-number" style="width: 24px; height: 24px; font-size: 0.75rem;">2</div>
+                <div class="step-content">
+                  <div class="step-title" style="font-size: 0.85rem;">Drag and Drop</div>
+                  <div class="step-desc" style="font-size: 0.75rem;">Drop the image in the scan box.</div>
+                </div>
+              </div>
+              <div class="step-card" style="padding: 0.75rem;">
+                <div class="step-number" style="width: 24px; height: 24px; font-size: 0.75rem;">3</div>
+                <div class="step-content">
+                  <div class="step-title" style="font-size: 0.85rem;">Get instant move</div>
+                  <div class="step-desc" style="font-size: 0.75rem;">We sync card ranks and show the optimal bet.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ====================================================================
+           BLACKJACK STRATEGY PANEL
+           ==================================================================== -->
+      <section class="panel" id="blackjack-panel">
+        <div class="panel-header">
+          <div class="panel-title">
+            <h2>Blackjack Strategy Radar</h2>
+            <p>Calculate basic strategy decisions. Enter player hand cards and dealer's exposed card.</p>
+          </div>
+          <button class="btn btn-danger" id="bj-clear-btn"><i data-lucide="trash-2"></i> Clear Table</button>
+        </div>
+
+        <div class="grid-container">
+          <div class="glass-card">
+            <div class="card-title"><i data-lucide="layout"></i> Board Configuration</div>
+            
+            <div style="display: flex; gap: 1rem; margin-bottom: 1.5rem;">
+              <button class="btn btn-primary" id="bj-select-player-btn" style="flex: 1;">Player Hand Target</button>
+              <button class="btn btn-secondary" id="bj-select-dealer-btn" style="flex: 1;">Dealer Upcard Target</button>
+            </div>
+
+            <label>Current Player Cards</label>
+            <div class="hand-display" id="bj-player-hand" style="margin-bottom: 1.5rem;">
+              <span class="text-muted">Awaiting Player Cards...</span>
+            </div>
+
+            <label>Current Dealer Upcard</label>
+            <div class="hand-display" id="bj-dealer-hand" style="margin-bottom: 1.5rem;">
+              <span class="text-muted">Awaiting Dealer Upcard...</span>
+            </div>
+
+            <label>Card Selection Matrix</label>
+            <div class="card-selector" id="bj-card-grid">
+              <!-- Dynamically populated from JS -->
+            </div>
+          </div>
+
+          <!-- Prediction HUD Sidebar -->
+          <div class="prediction-hud">
+            
+            <div class="advisor-banner pulse-primary">
+              <div class="advisor-label">Optimal Strategy Decision</div>
+              <div class="advisor-choice text-cyan" id="bj-advice-choice">Awaiting Cards</div>
+              <div class="advisor-desc" id="bj-advice-explanation">Add cards to view the optimal basic strategy decision.</div>
+            </div>
+
+            <div class="glass-card">
+              <div class="card-title"><i data-lucide="activity"></i> Probability HUD</div>
+              <div class="metric-label">Estimated Win Probability</div>
+              <div style="display: flex; align-items: baseline; gap: 0.5rem; margin-top: 0.25rem;">
+                <span class="metric-value value-cyan" id="bj-prob-val">50%</span>
+              </div>
+              <div class="probability-bar-container">
+                <div class="probability-bar" id="bj-prob-bar" style="width: 50%;"></div>
+              </div>
+            </div>
+
+            <div class="glass-card">
+              <div class="card-title"><i data-lucide="bar-chart-3"></i> Statistics Matrix</div>
+              <div class="info-row">
+                <span>Hand Total</span>
+                <span id="bj-stat-total" class="font-outfit text-cyan" style="font-weight: 700;">-</span>
+              </div>
+              <div class="info-row">
+                <span>Hand Type</span>
+                <span id="bj-stat-type" class="font-outfit text-cyan" style="font-weight: 700;">-</span>
+              </div>
+              <div class="info-row">
+                <span>Dealer Bust Chance</span>
+                <span id="bj-stat-dealerbust" class="font-outfit text-cyan" style="font-weight: 700;">-</span>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      <!-- ====================================================================
+           ROULETTE PROGRESSION PANEL
+           ==================================================================== -->
+      <section class="panel" id="roulette-panel">
+        <div class="panel-header">
+          <div class="panel-title">
+            <h2>Roulette Progression Strategist</h2>
+            <p>Compute optimal even-money betting progressions like Martingale, Fibonacci, and Labouchere.</p>
+          </div>
+          <button class="btn btn-secondary" id="rt-reset-btn"><i data-lucide="rotate-ccw"></i> Reset Sequence</button>
+        </div>
+
+        <div class="grid-container">
+          <!-- Configuration -->
+          <div class="glass-card">
+            <div class="card-title"><i data-lucide="settings"></i> Progression Parameters</div>
+            <div class="form-row">
+              <div class="form-group">
+                <label for="rt-base-bet">Base Unit Bet ($)</label>
+                <input type="number" id="rt-base-bet" value="10" min="1">
+              </div>
+              <div class="form-group">
+                <label for="rt-system">Progression System</label>
+                <select id="rt-system">
+                  <option value="Martingale">Martingale (Double on Loss)</option>
+                  <option value="Fibonacci">Fibonacci Sequence</option>
+                  <option value="D'Alembert">D'Alembert (+/- 1 unit)</option>
+                  <option value="Labouchere">Labouchere (Cancellation System)</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="rt-wheel">Wheel Layout Type</label>
+                <select id="rt-wheel">
+                  <option value="European (Single Zero)">European (Single Zero - 2.70% Edge)</option>
+                  <option value="American (Double Zero)">American (Double Zero - 5.26% Edge)</option>
+                </select>
+              </div>
+              <div class="form-group" id="rt-lab-seq-group" style="display: none;">
+                <label for="rt-lab-sequence">Labouchere Base Queue</label>
+                <input type="text" id="rt-lab-sequence" value="1, 2, 3, 4" placeholder="e.g. 1, 2, 3">
+              </div>
+            </div>
+
+            <!-- Spin result logger -->
+            <div class="card-title" style="margin-top: 1rem;"><i data-lucide="dice"></i> Log Previous Spin Result</div>
+            <div style="display: flex; gap: 1rem; margin-top: 0.5rem;">
+              <button class="btn btn-cyan" id="rt-win-btn" style="flex: 2; font-size: 1.1rem; height: 50px;">WIN</button>
+              <button class="btn btn-danger" id="rt-loss-btn" style="flex: 2; font-size: 1.1rem; height: 50px;">LOSS</button>
+              <button class="btn btn-secondary" id="rt-undo-btn" style="flex: 1;"><i data-lucide="undo-2"></i> Undo</button>
+            </div>
+
+            <!-- Progression History -->
+            <div class="card-title" style="margin-top: 2rem;"><i data-lucide="history"></i> Progression Step History (Last 6 Spins)</div>
+            <div class="step-sequence" id="rt-history-list">
+              <!-- Dynamically populated -->
+            </div>
+          </div>
+
+          <!-- HUD & Charts -->
+          <div class="prediction-hud">
+            
+            <div class="advisor-banner pulse-primary" style="background: linear-gradient(135deg, rgba(6, 182, 212, 0.15) 0%, rgba(139, 92, 246, 0.15) 100%); border-color: rgba(6, 182, 212, 0.3);">
+              <div class="advisor-label">Required Next Bet Wager</div>
+              <div class="advisor-choice text-cyan" id="rt-advice-choice">$10.00</div>
+              <div class="advisor-desc" id="rt-advice-explanation">Awaiting spin entries.</div>
+            </div>
+
+            <div class="glass-card">
+              <div class="card-title"><i data-lucide="percent"></i> Win Probability</div>
+              <div class="metric-label">Single Spin Success Rate</div>
+              <span class="metric-value value-cyan" id="rt-prob-val">48.65%</span>
+              <div class="probability-bar-container">
+                <div class="probability-bar" id="rt-prob-bar" style="width: 48%;"></div>
+              </div>
+            </div>
+
+            <div class="glass-card">
+              <div class="card-title"><i data-lucide="activity"></i> Session Dashboard</div>
+              <div class="info-row">
+                <span>Net Profit/Loss</span>
+                <span id="rt-stat-profit" class="font-outfit text-success" style="font-weight: 700;">$0.00</span>
+              </div>
+              <div class="info-row">
+                <span>Current Sequence Step</span>
+                <span id="rt-stat-step" class="font-outfit text-cyan" style="font-weight: 700;">1</span>
+              </div>
+              <div class="info-row">
+                <span>Mathematical House Edge</span>
+                <span id="rt-stat-houseedge" class="font-outfit text-cyan" style="font-weight: 700;">2.70%</span>
+              </div>
+            </div>
+
+            <!-- Balances Graph -->
+            <div class="glass-card" style="height: 220px;">
+              <div class="card-title" style="margin-bottom: 0.5rem;"><i data-lucide="trending-up"></i> Balance Trajectory</div>
+              <div style="position: relative; width: 100%; height: 140px;">
+                <canvas id="rouletteChart"></canvas>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      <!-- ====================================================================
+           BACCARAT SHOE TREND PANEL
+           ==================================================================== -->
+      <section class="panel" id="baccarat-panel">
+        <div class="panel-header">
+          <div class="panel-title">
+            <h2>Baccarat Shoe Roadmaps & Trends</h2>
+            <p>Log shoe history to render casino-grade roadmaps (Bead Plate & Big Road) and compute next play.</p>
+          </div>
+          <button class="btn btn-secondary" id="bc-reset-btn"><i data-lucide="rotate-ccw"></i> Reset Shoe</button>
+        </div>
+
+        <div class="grid-container">
+          <div class="glass-card">
+            <!-- Road Loggers -->
+            <div class="card-title"><i data-lucide="database"></i> Log Round Outcome</div>
+            <div style="display: flex; gap: 0.75rem; margin-bottom: 1.5rem;">
+              <button class="btn btn-danger" id="bc-log-banker" style="flex: 2; height: 50px; font-weight: 700;">BANKER (Red)</button>
+              <button class="btn btn-cyan" id="bc-log-player" style="flex: 2; height: 50px; font-weight: 700;">PLAYER (Blue)</button>
+              <button class="btn btn-primary" id="bc-log-tie" style="flex: 1.5; height: 50px; font-weight: 700; background:#10b981; border:none;">TIE</button>
+              <button class="btn btn-secondary" id="bc-undo-btn" style="flex: 1;"><i data-lucide="undo-2"></i> Undo</button>
+            </div>
+
+            <!-- Roadmaps displays -->
+            <div class="baccarat-roads">
+              <div>
+                <label>Bead Plate Grid (Sequential Outcome)</label>
+                <div class="road-grid" id="bc-bead-plate">
+                  <!-- Dynamically drawn -->
+                </div>
+              </div>
+              <div style="margin-top: 1rem;">
+                <label>Big Road (Streak Cluster Stack)</label>
+                <div class="road-grid" id="bc-big-road">
+                  <!-- Dynamically drawn -->
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Baccarat HUD -->
+          <div class="prediction-hud">
+            
+            <div class="advisor-banner pulse-primary">
+              <div class="advisor-label">Heuristic Recommendation</div>
+              <div class="advisor-choice text-danger" id="bc-advice-choice">Bet Banker</div>
+              <div class="advisor-desc" id="bc-advice-explanation">Banker wagers have the lowest mathematical edge.</div>
+            </div>
+
+            <!-- Trend Mode -->
+            <div class="glass-card">
+              <div class="card-title"><i data-lucide="git-branch"></i> Analysis Mode</div>
+              <label for="bc-trend-mode">Analysis Heuristic Model</label>
+              <select id="bc-trend-mode">
+                <option value="math">Mathematical EV Mode (Banker bias)</option>
+                <option value="trend">Trend Following Mode (Streak / Chop)</option>
+              </select>
+            </div>
+
+            <!-- Live Probability breakdown -->
+            <div class="glass-card">
+              <div class="card-title"><i data-lucide="bar-chart-2"></i> Shoe Win Shares</div>
+              
+              <div class="info-row">
+                <span style="color:#ef4444; font-weight:700;">Banker Odds</span>
+                <span id="bc-prob-b" class="font-outfit" style="font-weight: 700; color:#ef4444;">46%</span>
+              </div>
+              <div class="info-row">
+                <span style="color:#06b6d4; font-weight:700;">Player Odds</span>
+                <span id="bc-prob-p" class="font-outfit" style="font-weight: 700; color:#06b6d4;">45%</span>
+              </div>
+              <div class="info-row">
+                <span style="color:#10b981; font-weight:700;">Tie Odds</span>
+                <span id="bc-prob-t" class="font-outfit" style="font-weight: 700; color:#10b981;">9%</span>
+              </div>
+            </div>
+
+            <!-- Stats -->
+            <div class="glass-card">
+              <div class="card-title"><i data-lucide="list"></i> Shoe Count Totals</div>
+              <div class="info-row">
+                <span>Banker Wins</span>
+                <span id="bc-stat-banker" class="font-outfit" style="font-weight: 700;">0</span>
+              </div>
+              <div class="info-row">
+                <span>Player Wins</span>
+                <span id="bc-stat-player" class="font-outfit" style="font-weight: 700;">0</span>
+              </div>
+              <div class="info-row">
+                <span>Ties</span>
+                <span id="bc-stat-tie" class="font-outfit" style="font-weight: 700;">0</span>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      <!-- ====================================================================
+           TEXAS HOLD'EM POKER EQUITY PANEL
+           ==================================================================== -->
+      <section class="panel" id="poker-panel">
+        <div class="panel-header">
+          <div class="panel-title">
+            <h2>Texas Hold'em Hand Equity Simulator</h2>
+            <p>Run real-time Monte Carlo simulations of pocket cards against random opponent holdings.</p>
+          </div>
+          <button class="btn btn-danger" id="pk-clear-btn"><i data-lucide="trash-2"></i> Clear Table</button>
+        </div>
+
+        <div class="grid-container">
+          <div class="glass-card">
+            <div class="card-title"><i data-lucide="playing-card"></i> Hand Setup</div>
+            
+            <div style="display: flex; gap: 1rem; margin-bottom: 1.5rem;">
+              <button class="btn btn-primary" id="pk-select-pocket-btn" style="flex: 1;">Pocket Cards (2)</button>
+              <button class="btn btn-secondary" id="pk-select-board-btn" style="flex: 1;">Community Board (0-5)</button>
+            </div>
+
+            <!-- Felt rendering -->
+            <div class="poker-felt">
+              <div>
+                <div class="poker-spot-label">Pocket Hand</div>
+                <div class="hand-display" id="pk-pocket-cards" style="justify-content: center; min-width: 140px; margin-top: 0.5rem;">
+                  <span class="text-muted">No Pocket Cards Selected</span>
+                </div>
+              </div>
+              
+              <div style="width: 100%;">
+                <div class="poker-spot-label">Community Board (Flop / Turn / River)</div>
+                <div class="hand-display" id="pk-board-cards" style="justify-content: center; min-height: 80px; margin-top: 0.5rem;">
+                  <span class="text-muted">No Community Cards Selected</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Card Grid Picker -->
+            <label style="margin-top: 1.5rem;">Deck Selection Grid</label>
+            <div class="card-selector" id="pk-card-grid">
+              <!-- Dynamically populated -->
+            </div>
+          </div>
+
+          <!-- Poker HUD -->
+          <div class="prediction-hud">
+            
+            <button class="btn btn-cyan" id="pk-calculate-btn" style="font-size: 1.1rem; height: 50px;"><i data-lucide="play"></i> Run Strategy Simulator</button>
+
+            <div class="advisor-banner pulse-primary" style="margin-top: 0.5rem;">
+              <div class="advisor-label">Betting Decision Advice</div>
+              <div class="advisor-choice text-cyan" id="pk-advice-choice">Awaiting Deck</div>
+              <div class="advisor-desc" id="pk-advice-explanation">Run simulation to evaluate hand strength.</div>
+            </div>
+
+            <!-- Inputs -->
+            <div class="glass-card">
+              <div class="card-title"><i data-lucide="sliders"></i> Table Odds Settings</div>
+              <div class="form-group">
+                <label for="pk-opponents">Opponents (1-9)</label>
+                <select id="pk-opponents">
+                  <option value="1">1 Opponent</option>
+                  <option value="2">2 Opponents</option>
+                  <option value="3">3 Opponents</option>
+                  <option value="4">4 Opponents</option>
+                  <option value="5">5 Opponents</option>
+                  <option value="6">6 Opponents</option>
+                  <option value="7">7 Opponents</option>
+                  <option value="8">8 Opponents</option>
+                  <option value="9">9 Opponents</option>
+                </select>
+              </div>
+              
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="pk-pot-size">Current Pot Size ($)</label>
+                  <input type="number" id="pk-pot-size" value="120" min="1">
+                </div>
+                <div class="form-group">
+                  <label for="pk-call-size">Cost to Call ($)</label>
+                  <input type="number" id="pk-call-size" value="20" min="0">
+                </div>
+              </div>
+            </div>
+
+            <!-- Stats -->
+            <div class="glass-card">
+              <div class="card-title"><i data-lucide="bar-chart-3"></i> Simulation Odds</div>
+              
+              <div class="metric-label">Estimated Win Equity</div>
+              <span class="metric-value value-cyan" id="pk-prob-val">0%</span>
+              <div class="probability-bar-container" style="margin-bottom: 1rem;">
+                <div class="probability-bar" id="pk-prob-bar" style="width: 0%;"></div>
+              </div>
+
+              <div class="info-row">
+                <span>Best 5-Card Hand</span>
+                <span id="pk-stat-hand" class="font-outfit text-cyan" style="font-weight: 700;">-</span>
+              </div>
+              <div class="info-row">
+                <span>Opponent Edge</span>
+                <span id="pk-stat-oppequity" class="font-outfit text-cyan" style="font-weight: 700;">-</span>
+              </div>
+              <div class="info-row">
+                <span>Pot Odds Limit</span>
+                <span id="pk-stat-potodds" class="font-outfit text-cyan" style="font-weight: 700;">-</span>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      <!-- ====================================================================
+           CRAPS ODDS PANEL
+           ==================================================================== -->
+      <section class="panel" id="craps-panel">
+        <div class="panel-header">
+          <div class="panel-title">
+            <h2>Craps Dice Odds Advisor</h2>
+            <p>Investigate house advantage ratings and isolate the optimal point-backed odds wagers.</p>
+          </div>
+        </div>
+
+        <div class="grid-container">
+          <div class="glass-card">
+            <div class="card-title"><i data-lucide="dices"></i> Active Craps Phase</div>
+            
+            <div style="display: flex; gap: 1rem; margin-bottom: 1.5rem;">
+              <button class="btn btn-primary" id="cr-phase-comeout" style="flex: 1;">Come-out Roll Phase</button>
+              <button class="btn btn-secondary" id="cr-phase-point" style="flex: 1;">Point Established Phase</button>
+            </div>
+
+            <div id="cr-point-selector" style="display: none; margin-bottom: 1.5rem;">
+              <label>Select Established Point Value</label>
+              <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                <button class="btn btn-secondary cr-point-val-btn" data-val="4">4</button>
+                <button class="btn btn-secondary cr-point-val-btn" data-val="5">5</button>
+                <button class="btn btn-cyan cr-point-val-btn" data-val="6">6</button>
+                <button class="btn btn-secondary cr-point-val-btn" data-val="8">8</button>
+                <button class="btn btn-secondary cr-point-val-btn" data-val="9">9</button>
+                <button class="btn btn-secondary cr-point-val-btn" data-val="10">10</button>
+              </div>
+            </div>
+
+            <div class="card-title" style="margin-top: 1.5rem;"><i data-lucide="layers"></i> House Advantage Rankings Table</div>
+            <table style="width: 100%; border-collapse: collapse; margin-top: 0.5rem; color:#f8fafc; text-align: left;">
+              <thead>
+                <tr style="border-bottom: 1px solid rgba(255,255,255,0.1); color:#94a3b8; font-size: 0.8rem;">
+                  <th style="padding: 0.5rem 1rem;">Bet Type</th>
+                  <th style="padding: 0.5rem 1rem;">House Edge</th>
+                  <th style="padding: 0.5rem 1rem;">Payout Odds</th>
+                  <th style="padding: 0.5rem 1rem;">Description</th>
+                </tr>
+              </thead>
+              <tbody id="cr-bets-table">
+                <!-- Dynamically populated -->
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Craps HUD -->
+          <div class="prediction-hud">
+            
+            <div class="advisor-banner pulse-primary">
+              <div class="advisor-label">Optimal Betting Choice</div>
+              <div class="advisor-choice text-success" id="cr-advice-choice">Bet Pass Line</div>
+              <div class="advisor-desc" id="cr-advice-explanation">Come-out Phase advice text here.</div>
+            </div>
+
+            <div class="glass-card">
+              <div class="card-title"><i data-lucide="activity"></i> Roll Probability</div>
+              <div class="metric-label">Winning Roll Odds</div>
+              <span class="metric-value value-green" id="cr-prob-val">49.3%</span>
+              <div class="probability-bar-container">
+                <div class="probability-bar" id="cr-prob-bar" style="width: 49%;"></div>
+              </div>
+            </div>
+
+            <div class="glass-card">
+              <div class="card-title"><i data-lucide="shield-check"></i> Math Recommendation</div>
+              <p style="font-size: 0.85rem; color: #94a3b8; line-height: 1.5;">
+                Always back up a Pass Line or Don't Pass Line bet with **Free Odds** once a point is established. It is the only wager in the casino with a **0% house edge**.
+              </p>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      <!-- ====================================================================
+           CUSTOM PROGRESSION SEQUENCER PANEL
+           ==================================================================== -->
+      <section class="panel" id="custom-panel">
+        <div class="panel-header">
+          <div class="panel-title">
+            <h2>Custom Strategy Progression Builder</h2>
+            <p>Model custom betting progressions for any platform (such as Crash games or Dice simulators).</p>
+          </div>
+          <button class="btn btn-secondary" id="cs-reset-btn"><i data-lucide="rotate-ccw"></i> Reset Sequence</button>
+        </div>
+
+        <div class="grid-container">
+          <!-- Configurations -->
+          <div class="glass-card">
+            <div class="card-title"><i data-lucide="tool"></i> Sequencer Parameters</div>
+            <div class="form-row">
+              <div class="form-group">
+                <label for="cs-win-prob">Win Chance Probability (%)</label>
+                <input type="number" id="cs-win-prob" value="50" min="1" max="99">
+              </div>
+              <div class="form-group">
+                <label for="cs-base-bet">Base Unit Bet ($)</label>
+                <input type="number" id="cs-base-bet" value="10" min="1">
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="cs-multiplier">Loss Progression Multiplier</label>
+                <input type="number" id="cs-multiplier" value="2" step="0.1" min="1">
+              </div>
+              <div class="form-group" style="visibility: hidden;">
+                <label>Spacer</label>
+                <input type="text">
+              </div>
+            </div>
+
+            <!-- Spin result logger -->
+            <div class="card-title" style="margin-top: 1rem;"><i data-lucide="log-in"></i> Log Strategy Iteration Result</div>
+            <div style="display: flex; gap: 1rem; margin-top: 0.5rem;">
+              <button class="btn btn-cyan" id="cs-win-btn" style="flex: 1; font-size: 1.1rem; height: 50px;">LOG WIN</button>
+              <button class="btn btn-danger" id="cs-loss-btn" style="flex: 1; font-size: 1.1rem; height: 50px;">LOG LOSS</button>
+            </div>
+
+            <!-- Progression History -->
+            <div class="card-title" style="margin-top: 2rem;"><i data-lucide="history"></i> Log History</div>
+            <div class="step-sequence" id="cs-history-list">
+              <!-- Dynamically populated -->
+            </div>
+          </div>
+
+          <!-- HUD & Charts -->
+          <div class="prediction-hud">
+            
+            <div class="advisor-banner pulse-primary" style="background: linear-gradient(135deg, rgba(139, 92, 246, 0.15) 0%, rgba(6, 182, 212, 0.15) 100%); border-color: rgba(139, 92, 246, 0.3);">
+              <div class="advisor-label">Calculated Next Bet</div>
+              <div class="advisor-choice text-purple" id="cs-advice-choice">$10.00</div>
+              <div class="advisor-desc" id="cs-advice-explanation">Awaiting iterations.</div>
+            </div>
+
+            <div class="glass-card">
+              <div class="card-title"><i data-lucide="percent"></i> Win Probability</div>
+              <div class="metric-label">Calculated Win Odds</div>
+              <span class="metric-value value-purple" id="cs-prob-val">50%</span>
+              <div class="probability-bar-container">
+                <div class="probability-bar" id="cs-prob-bar" style="width: 50%;"></div>
+              </div>
+            </div>
+
+            <div class="glass-card">
+              <div class="card-title"><i data-lucide="activity"></i> Session Dashboard</div>
+              <div class="info-row">
+                <span>Session Profit/Loss</span>
+                <span id="cs-stat-profit" class="font-outfit text-success" style="font-weight: 700;">$0.00</span>
+              </div>
+              <div class="info-row">
+                <span>Next Bet Step</span>
+                <span id="cs-stat-step" class="font-outfit text-purple" style="font-weight: 700;">1</span>
+              </div>
+              <div class="info-row">
+                <span>Ruin Probability (6 Loss Streak)</span>
+                <span id="cs-stat-ruin" class="font-outfit text-purple" style="font-weight: 700;">1.5%</span>
+              </div>
+            </div>
+
+            <!-- Balances Graph -->
+            <div class="glass-card" style="height: 220px;">
+              <div class="card-title" style="margin-bottom: 0.5rem;"><i data-lucide="trending-up"></i> Balance Trajectory</div>
+              <div style="position: relative; width: 100%; height: 140px;">
+                <canvas id="customChart"></canvas>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      <!-- ====================================================================
+           ENGINE ANALYTICS PANEL
+           ==================================================================== -->
+      <section class="panel" id="analytics-panel">
+        <div class="panel-header">
+          <div class="panel-title">
+            <h2>AI Engine Analytics</h2>
+            <p>Review metrics of your sessions and discover which game engines you access the most.</p>
+          </div>
+        </div>
+        <div class="grid-container">
+          <div class="glass-card" style="height: 380px;">
+            <div class="card-title"><i data-lucide="bar-chart-3"></i> Most Accessed Game Modules</div>
+            <div style="position: relative; width: 100%; height: 280px;">
+              <canvas id="analyticsChart"></canvas>
+            </div>
+          </div>
+          <div class="glass-card">
+            <div class="card-title text-gold"><i data-lucide="trophy"></i> Smart Insights</div>
+            <div id="analytics-insights-list" class="step-sequence">
+               <div class="step-card">
+                 <div class="step-number" style="color:var(--gold); border-color:rgba(251,191,36,0.3)">AI</div>
+                 <div class="step-content">
+                   <div class="step-title">Analytic Insight</div>
+                   <div class="step-desc" id="analytics-insight-text">Awaiting more session data to compile statistics.</div>
+                 </div>
+               </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+
+    </main>
+  </div>
+
+  <!-- Engines and Core Application -->
+  <script src="js/blackjack.js"></script>
+  <script src="js/roulette.js"></script>
+  <script src="js/baccarat.js"></script>
+  <script src="js/poker.js"></script>
+  <script src="js/craps.js"></script>
+  <script src="js/vision.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
