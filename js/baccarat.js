@@ -12,6 +12,9 @@ class BaccaratEngine {
 
   addResult(result) {
     if (['B', 'P', 'T'].includes(result)) {
+      if (window.SattaAIPredictor) {
+        window.SattaAIPredictor.learnBaccarat(this.shoeHistory, result);
+      }
       this.shoeHistory.push(result);
     }
     return this.getAnalysis();

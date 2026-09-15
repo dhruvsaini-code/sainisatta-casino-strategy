@@ -933,3 +933,128 @@ select:focus, input:focus {
     display: none;
   }
 }
+
+@keyframes borderPulse {
+  0% { opacity: 0.6; box-shadow: 0 0 2px var(--secondary-glow); }
+  50% { opacity: 1.0; box-shadow: 0 0 12px var(--secondary-glow); }
+  100% { opacity: 0.6; box-shadow: 0 0 2px var(--secondary-glow); }
+}
+
+/* Mines Simulator Styling */
+.mines-grid {
+  user-select: none;
+}
+
+.mine-tile {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-xs);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  cursor: pointer;
+  transition: all var(--transition-normal);
+  color: var(--text-muted);
+  box-shadow: inset 0 0 8px rgba(255,255,255,0.01);
+}
+
+.mine-tile.ai-recommended:not(.revealed) {
+  border-color: var(--gold) !important;
+  box-shadow: 0 0 12px var(--gold-glow), inset 0 0 8px rgba(251, 191, 36, 0.1) !important;
+  transform: scale(1.03);
+  background: rgba(251, 191, 36, 0.02) !important;
+}
+
+.mine-tile:hover:not(.revealed) {
+  background: rgba(0, 242, 254, 0.05);
+  border-color: rgba(0, 242, 254, 0.3);
+  box-shadow: 0 0 10px rgba(0, 242, 254, 0.15);
+  transform: scale(1.04);
+}
+
+.mine-tile.revealed {
+  cursor: default;
+  background: rgba(0, 0, 0, 0.35);
+  transform: scale(0.95);
+}
+
+.mine-tile.revealed.diamond {
+  border-color: var(--emerald);
+  color: var(--emerald);
+  background: rgba(16, 185, 129, 0.1);
+  box-shadow: 0 0 15px rgba(16, 185, 129, 0.2);
+  animation: popGem 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+.mine-tile.revealed.mine {
+  border-color: var(--crimson);
+  color: var(--crimson);
+  background: rgba(244, 63, 94, 0.15);
+  box-shadow: 0 0 20px rgba(244, 63, 94, 0.35);
+  animation: shakeExplode 0.3s ease-in-out;
+}
+
+@keyframes popGem {
+  from { transform: scale(0.6); opacity: 0; }
+  to { transform: scale(0.95); opacity: 1; }
+}
+
+@keyframes shakeExplode {
+  0%, 100% { transform: scale(0.95) translateX(0); }
+  20%, 60% { transform: scale(0.95) translateX(-4px); }
+  40%, 80% { transform: scale(0.95) translateX(4px); }
+}
+
+/* Limbo Ticker Animations */
+.ticker-win {
+  color: #10b981 !important;
+  text-shadow: 0 0 20px rgba(16, 185, 129, 0.6) !important;
+  animation: bounceScale 0.3s ease-out;
+}
+
+.ticker-loss {
+  color: #f43f5e !important;
+  text-shadow: 0 0 20px rgba(244, 63, 94, 0.5) !important;
+}
+
+@keyframes bounceScale {
+  0% { transform: scale(0.9); }
+  50% { transform: scale(1.1); }
+  100% { transform: scale(1); }
+}
+
+/* Wager Sizing Advisor HUD styling */
+.bet-sizing-rec {
+  margin-top: 0.85rem;
+  padding-top: 0.85rem;
+  border-top: 1px dashed rgba(255, 255, 255, 0.08);
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 800;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+}
+
+/* Text color helpers */
+.text-emerald {
+  color: #10b981 !important;
+}
+.text-crimson {
+  color: #f43f5e !important;
+}
+.text-cyan {
+  color: #00f2fe !important;
+}
+.text-gold {
+  color: #f59e0b !important;
+}
+.text-purple {
+  color: #a855f7 !important;
+}
+
+

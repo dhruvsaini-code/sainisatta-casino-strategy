@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AegisBet | Premium Full-Stack Casino Strategy Deck</title>
+  <title>sainisatta | Premium Full-Stack Casino Strategy Deck</title>
   <meta name="description" content="AI-powered live gambling strategy companion. Upload screenshots or log game state to predict win probabilities and compute mathematically optimal decisions.">
   <link rel="stylesheet" href="style.css">
   <!-- Chart.js for Progression plots -->
@@ -17,8 +17,8 @@
   <div id="auth-modal" class="auth-modal-overlay">
     <div class="glass-card auth-card" style="border-color: rgba(168, 85, 247, 0.3);">
       <div style="text-align: center; margin-bottom: 1.5rem;">
-        <div class="logo-icon" style="margin: 0 auto 0.5rem auto; font-size: 1.8rem; width: 50px; height: 50px;">Æ</div>
-        <h2 style="font-family: 'Orbitron', sans-serif; font-weight: 900; background: linear-gradient(to right, #ffffff, #a855f7); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">AegisBet Access</h2>
+        <div class="logo-icon" style="margin: 0 auto 0.5rem auto; font-size: 1.8rem; width: 50px; height: 50px;">S</div>
+        <h2 style="font-family: 'Orbitron', sans-serif; font-weight: 900; background: linear-gradient(to right, #ffffff, #a855f7); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">sainisatta Access</h2>
         <p class="text-muted" style="font-size: 0.8rem; margin-top: 0.25rem;">Live Mathematical Strategy Deck</p>
       </div>
 
@@ -49,9 +49,9 @@
   <!-- Top Navigation Bar -->
   <header>
     <div class="logo-container">
-      <div class="logo-icon">Æ</div>
+      <div class="logo-icon">S</div>
       <div>
-        <h1 class="brand-name">AegisBet</h1>
+        <h1 class="brand-name">sainisatta</h1>
         <span class="badge">PRO STRATEGIZER V3.0</span>
       </div>
     </div>
@@ -90,6 +90,15 @@
           <li class="nav-item" id="craps-tab" data-target="craps-panel">
             <button><i data-lucide="dices"></i> Craps Odds</button>
           </li>
+          <li class="nav-item" id="mines-tab" data-target="mines-panel">
+            <button><i data-lucide="grid"></i> Mines Board</button>
+          </li>
+          <li class="nav-item" id="limbo-tab" data-target="limbo-panel">
+            <button><i data-lucide="trending-up"></i> Limbo Odds</button>
+          </li>
+          <li class="nav-item" id="crash-tab" data-target="crash-panel">
+            <button><i data-lucide="rocket"></i> Crash Rocket</button>
+          </li>
           <li class="nav-item" id="custom-tab" data-target="custom-panel">
             <button><i data-lucide="sliders"></i> Custom Sequencer</button>
           </li>
@@ -102,13 +111,13 @@
       <div class="glass-card" style="padding: 0.85rem; margin: 1.5rem 0.5rem 1rem 0.5rem; border-color: rgba(0, 242, 254, 0.15); background: rgba(0, 242, 254, 0.02); border-radius: var(--radius-sm); box-shadow: var(--shadow-glow);">
         <div style="display: flex; align-items: center; gap: 0.5rem; font-weight: 800; color: var(--secondary); margin-bottom: 0.25rem; font-family: 'Orbitron', sans-serif; font-size: 0.7rem;">
           <span class="pulse-primary" style="display: inline-block; width: 6px; height: 6px; background: var(--secondary); border-radius: 50%;"></span>
-          AEGIS AI ENGINE
+          SAINISATTA AI ENGINE
         </div>
         <p style="color: var(--text-secondary); font-size: 0.65rem; line-height: 1.3;">Neural layout recognition & EV math models running client-side.</p>
       </div>
 
       <div class="sidebar-footer">
-        <p>AegisBet is a mathematical companion. Play responsibly.</p>
+        <p>sainisatta is a mathematical companion. Play responsibly.</p>
       </div>
     </aside>
 
@@ -131,11 +140,14 @@
             <div class="card-title"><i data-lucide="upload-cloud"></i> Drop Zone & Capture Console</div>
             
             <!-- Upload Box -->
-            <div id="vs-dropzone" style="border: 2px dashed rgba(0, 242, 254, 0.25); padding: 3rem; text-align: center; border-radius: var(--radius-lg); background: rgba(0, 242, 254, 0.01); cursor: pointer; transition: var(--transition-normal); margin-bottom: 1.5rem;">
+            <div id="vs-dropzone" style="border: 2px dashed rgba(0, 242, 254, 0.25) !important; background: rgba(0, 242, 254, 0.01) !important; padding: 3rem; text-align: center; border-radius: var(--radius-lg); cursor: pointer; transition: var(--transition-normal); margin-bottom: 1.5rem;">
               <i data-lucide="image" style="width: 48px; height: 48px; color: var(--secondary); margin-bottom: 1rem;"></i>
               <h3 style="font-family: 'Space Grotesk', sans-serif; margin-bottom: 0.5rem;">Drag & Drop Screenshot here</h3>
               <p class="text-muted" style="font-size: 0.85rem; margin-bottom: 1.5rem;">Supports JPG, PNG screenshots from any casino client</p>
-              <button class="btn btn-cyan" onclick="document.getElementById('vs-file-input').click()">Browse Local Files</button>
+              <div style="display: flex; gap: 0.75rem; justify-content: center; flex-wrap: wrap;">
+                <button class="btn btn-cyan" onclick="document.getElementById('vs-file-input').click()"><i data-lucide="folder-open"></i> Browse Local Files</button>
+                <button class="btn btn-secondary" id="vs-simulate-btn"><i data-lucide="monitor-play"></i> Simulate Demo Capture</button>
+              </div>
               <input type="file" id="vs-file-input" style="display: none;" accept="image/*">
             </div>
 
@@ -242,6 +254,7 @@
               <div class="advisor-label">Optimal Strategy Decision</div>
               <div class="advisor-choice text-cyan" id="bj-advice-choice">Awaiting Cards</div>
               <div class="advisor-desc" id="bj-advice-explanation">Add cards to view the optimal basic strategy decision.</div>
+              <div class="bet-sizing-rec" id="bj-bet-rec"></div>
             </div>
 
             <!-- SVG Radial win dial -->
@@ -278,6 +291,53 @@
               <div class="info-row">
                 <span>Dealer Bust Chance</span>
                 <span id="bj-stat-dealerbust" class="font-outfit text-cyan" style="font-weight: 700;">-</span>
+              </div>
+            </div>
+
+            <!-- Shoe Count Monitor & Hi-Lo Tracking -->
+            <div class="glass-card">
+              <div class="card-title"><i data-lucide="calculator"></i> Shoe Count Monitor</div>
+              <div class="form-group" style="margin-bottom: 1rem;">
+                <label for="bj-shoe-decks">Shoe Decks</label>
+                <select id="bj-shoe-decks" style="padding: 0.4rem 0.6rem; font-size: 0.8rem; height: 34px;">
+                  <option value="1">Single Deck (1)</option>
+                  <option value="2">Double Deck (2)</option>
+                  <option value="4">4 Decks</option>
+                  <option value="6" selected>6 Decks</option>
+                  <option value="8">8 Decks</option>
+                </select>
+              </div>
+              
+              <div class="info-row">
+                <span>Running Count</span>
+                <span id="bj-running-count" class="font-outfit text-cyan" style="font-weight: 700; font-size: 1.1rem;">0</span>
+              </div>
+              <div class="info-row">
+                <span>True Count</span>
+                <span id="bj-true-count" class="font-outfit text-cyan" style="font-weight: 700; font-size: 1.1rem;">0.0</span>
+              </div>
+              <div class="info-row">
+                <span>Shoe Penetration</span>
+                <div style="flex: 1; margin: 0 1rem; height: 6px; background: rgba(255,255,255,0.05); border-radius: 3px; overflow: hidden; position: relative;">
+                  <div id="bj-shoe-penetration-bar" style="width: 0%; height: 100%; background: var(--secondary); transition: width var(--transition-normal);"></div>
+                </div>
+                <span id="bj-shoe-penetration" style="font-size: 0.75rem; color: var(--text-secondary);">0%</span>
+              </div>
+              <div class="info-row">
+                <span>Recommended Bet</span>
+                <span id="bj-bet-multiplier" class="font-outfit text-gold" style="font-weight: 800; text-shadow: 0 0 6px var(--gold-glow);">1x (Base Bet)</span>
+              </div>
+              
+              <label style="margin-top: 1rem; display: block; font-size: 0.7rem;">Quick Log Dealt Card</label>
+              <div style="display: flex; gap: 0.35rem; margin-top: 0.25rem;">
+                <button class="btn btn-secondary" id="bj-log-plus1" style="flex: 1; padding: 0.4rem; font-size: 0.75rem; color: var(--emerald);">+1 (2-6)</button>
+                <button class="btn btn-secondary" id="bj-log-zero" style="flex: 1; padding: 0.4rem; font-size: 0.75rem; color: var(--text-muted);">0 (7-9)</button>
+                <button class="btn btn-secondary" id="bj-log-minus1" style="flex: 1; padding: 0.4rem; font-size: 0.75rem; color: var(--crimson);">-1 (10-A)</button>
+              </div>
+              
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1rem;">
+                <span class="text-muted" style="font-size: 0.7rem;">Shoe Cards Dealt: <span id="bj-cards-dealt-count">0</span></span>
+                <button class="btn btn-secondary" id="bj-reset-shoe-btn" style="padding: 0.25rem 0.5rem; font-size: 0.7rem;"><i data-lucide="refresh-cw" style="width: 10px; height: 10px;"></i> Reset Shoe</button>
               </div>
             </div>
 
@@ -333,10 +393,28 @@
 
             <!-- Spin result logger -->
             <div class="card-title" style="margin-top: 1rem;"><i data-lucide="dice"></i> Log Previous Spin Result</div>
-            <div style="display: flex; gap: 1rem; margin-top: 0.5rem;">
-              <button class="btn btn-cyan" id="rt-win-btn" style="flex: 2; font-size: 1.1rem; height: 50px;">WIN</button>
-              <button class="btn btn-danger" id="rt-loss-btn" style="flex: 2; font-size: 1.1rem; height: 50px;">LOSS</button>
-              <button class="btn btn-secondary" id="rt-undo-btn" style="flex: 1;"><i data-lucide="undo-2"></i> Undo</button>
+            
+            <div class="form-row" style="margin-bottom: 1.25rem;">
+              <div class="form-group" style="margin-bottom: 0;">
+                <label for="rt-bet-placement">Bet Placement Target</label>
+                <select id="rt-bet-placement" style="height: 44px;">
+                  <option value="red">Red (Even Money)</option>
+                  <option value="black">Black (Even Money)</option>
+                  <option value="even">Even (Even Money)</option>
+                  <option value="odd">Odd (Even Money)</option>
+                  <option value="high">High (19-36)</option>
+                  <option value="low">Low (1-18)</option>
+                </select>
+              </div>
+              <div class="form-group" style="align-self: flex-end; margin-bottom: 0;">
+                <button class="btn btn-primary" id="rt-spin-btn" style="width: 100%; height: 44px;"><i data-lucide="play-circle"></i> Spin & Resolve</button>
+              </div>
+            </div>
+
+            <div style="display: flex; gap: 1rem; margin-top: 0.5rem; border-top: 1px dashed rgba(255,255,255,0.05); padding-top: 1rem;">
+              <button class="btn btn-cyan" id="rt-win-btn" style="flex: 2; font-size: 0.95rem; height: 44px;">Manual WIN</button>
+              <button class="btn btn-danger" id="rt-loss-btn" style="flex: 2; font-size: 0.95rem; height: 44px;">Manual LOSS</button>
+              <button class="btn btn-secondary" id="rt-undo-btn" style="flex: 1; height: 44px;"><i data-lucide="undo-2"></i> Undo</button>
             </div>
 
             <!-- Progression History -->
@@ -353,6 +431,7 @@
               <div class="advisor-label">Required Next Bet Wager</div>
               <div class="advisor-choice text-cyan" id="rt-advice-choice">$10.00</div>
               <div class="advisor-desc" id="rt-advice-explanation">Awaiting spin entries.</div>
+              <div class="bet-sizing-rec" id="rt-bet-rec"></div>
             </div>
 
             <!-- Interactive Roulette wheel spin canvas -->
@@ -454,6 +533,7 @@
               <div class="advisor-label">Heuristic Recommendation</div>
               <div class="advisor-choice text-danger" id="bc-advice-choice">Bet Banker</div>
               <div class="advisor-desc" id="bc-advice-explanation">Banker wagers have the lowest mathematical edge.</div>
+              <div class="bet-sizing-rec" id="bc-bet-rec"></div>
             </div>
 
             <!-- SVG Radial Win Dial for Banker -->
@@ -569,6 +649,7 @@
               <div class="advisor-label">Betting Decision Advice</div>
               <div class="advisor-choice text-cyan" id="pk-advice-choice">Awaiting Deck</div>
               <div class="advisor-desc" id="pk-advice-explanation">Run simulation to evaluate hand strength.</div>
+              <div class="bet-sizing-rec" id="pk-bet-rec"></div>
             </div>
 
             <!-- Inputs -->
@@ -626,6 +707,14 @@
               <div class="info-row">
                 <span>Pot Odds Limit</span>
                 <span id="pk-stat-potodds" class="font-outfit text-cyan" style="font-weight: 700;">-</span>
+              </div>
+              <div class="info-row">
+                <span>Improving Outs</span>
+                <span id="pk-stat-outs" class="font-outfit text-cyan" style="font-weight: 700;">-</span>
+              </div>
+              <div class="info-row" style="flex-direction: column; align-items: flex-start; gap: 0.25rem;">
+                <span style="font-size: 0.75rem; color: var(--text-secondary);">Outs Details</span>
+                <span id="pk-stat-outs-desc" class="text-muted" style="font-size: 0.7rem; line-height: 1.3;">-</span>
               </div>
             </div>
 
@@ -688,6 +777,7 @@
               <div class="advisor-label">Optimal Betting Choice</div>
               <div class="advisor-choice text-success" id="cr-advice-choice">Bet Pass Line</div>
               <div class="advisor-desc" id="cr-advice-explanation">Come-out Phase advice text here.</div>
+              <div class="bet-sizing-rec" id="cr-bet-rec"></div>
             </div>
 
             <!-- SVG Radial Win Dial -->
@@ -712,6 +802,396 @@
               </p>
             </div>
 
+          </div>
+        </div>
+      </section>
+
+      <!-- ====================================================================
+           MINES STRATEGY PANEL
+           ==================================================================== -->
+      <section class="panel" id="mines-panel">
+        <div class="panel-header">
+          <div class="panel-title">
+            <h2>Mines Strategy Board</h2>
+            <p>Calculate optimal tiles, real-time safety indices, and cash-out multipliers.</p>
+          </div>
+          <button class="btn btn-secondary" id="mn-cashout-btn" disabled><i data-lucide="wallet"></i> Cash Out ($<span id="mn-cashout-val">0.00</span>)</button>
+        </div>
+
+        <div class="grid-container">
+          <!-- Configurations & Interactive Simulator -->
+          <div class="glass-card">
+            <div class="card-title"><i data-lucide="play"></i> Mines Board Simulator</div>
+            
+            <div class="form-row">
+              <div class="form-group">
+                <label for="mn-mines-count">Number of Mines (1 - 24)</label>
+                <input type="number" id="mn-mines-count" value="3" min="1" max="24">
+              </div>
+              <div class="form-group">
+                <label for="mn-bet-amount">Bet Amount ($)</label>
+                <input type="number" id="mn-bet-amount" value="10" min="1">
+              </div>
+            </div>
+
+            <div style="display: flex; gap: 1rem; margin: 1rem 0;">
+              <button class="btn btn-primary" id="mn-start-btn" style="flex: 1;">Start Board</button>
+              <button class="btn btn-secondary" id="mn-reset-btn" style="flex: 1;">Reset</button>
+            </div>
+
+            <!-- Mines 5x5 Grid Container -->
+            <div class="mines-grid-wrapper" style="display: flex; justify-content: center; margin: 1.5rem 0;">
+              <div id="mn-grid" class="mines-grid" style="display: grid; grid-template-columns: repeat(5, 55px); grid-template-rows: repeat(5, 55px); gap: 8px;">
+                <!-- Generated dynamically in JS -->
+              </div>
+            </div>
+            
+            <!-- Strategy Training Terminal -->
+            <div class="card-title" style="margin-top: 1.5rem;"><i data-lucide="cpu"></i> AI Strategy Progression Trainer</div>
+            <div style="display: flex; gap: 1rem; align-items: center; margin-top: 0.5rem;">
+              <button class="btn btn-cyan" id="mn-train-btn" style="flex: 1;">⚡ Train Strategy</button>
+              <div style="flex: 1; font-size: 0.75rem; color: var(--text-secondary);">
+                Simulates 5,000 runs to find the optimal click threshold.
+              </div>
+            </div>
+            <div id="mn-train-results" style="display: none; margin-top: 1rem; padding: 0.75rem; background: rgba(0, 242, 254, 0.05); border: 1px dashed rgba(0, 242, 254, 0.2); border-radius: var(--radius-sm);">
+              <div style="font-size:0.8rem; font-weight:700; color:var(--cyan); margin-bottom:0.25rem;">Training Complete!</div>
+              <div style="font-size:0.75rem; color:var(--text-primary); line-height:1.4;">
+                • Optimal Clicks: <strong id="mn-opt-clicks" class="text-emerald">-</strong> tiles<br>
+                • Optimal Multiplier: <strong id="mn-opt-mult" class="text-gold">-</strong><br>
+                • Expected ROI Win Rate: <strong id="mn-opt-winrate">-</strong>%
+              </div>
+            </div>
+          </div>
+
+          <!-- Predictions & Statistics -->
+          <div class="prediction-hud">
+            <div class="advisor-banner pulse-primary" id="mn-advisor-banner">
+              <div class="advisor-label">Mines Strategy Advice</div>
+              <div class="advisor-choice text-cyan" id="mn-advice-choice">LOW RISK</div>
+              <div class="advisor-desc" id="mn-advice-explanation">Start a new board to initiate mathematical EV calculations.</div>
+              <div class="bet-sizing-rec" id="mn-bet-rec"></div>
+            </div>
+
+            <!-- SVG Win Dial -->
+            <div class="glass-card">
+              <div class="card-title"><i data-lucide="percent"></i> Safety Index (Next Click)</div>
+              <div class="radial-gauge-container">
+                <svg class="radial-gauge-svg">
+                  <circle class="radial-gauge-bg-ring" cx="70" cy="70" r="45"></circle>
+                  <circle class="radial-gauge-fill-ring" id="mn-gauge-fill" cx="70" cy="70" r="45" style="stroke-dashoffset: 282.7;"></circle>
+                </svg>
+                <div class="radial-gauge-text">
+                  <span class="gauge-pct" id="mn-prob-val">100%</span>
+                  <span class="gauge-label">Safe Prob</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Metrics -->
+            <div class="glass-card">
+              <div class="card-title"><i data-lucide="info"></i> Board Mechanics</div>
+              <div class="info-row">
+                <span>Gems Uncovered</span>
+                <span id="mn-stat-gems" class="font-outfit text-emerald" style="font-weight: 700;">0</span>
+              </div>
+              <div class="info-row">
+                <span>Current Multiplier</span>
+                <span id="mn-stat-mult" class="font-outfit text-gold" style="font-weight: 700;">1.00x</span>
+              </div>
+              <div class="info-row">
+                <span>Next Multiplier</span>
+                <span id="mn-stat-nextmult" class="font-outfit text-purple" style="font-weight: 700;">1.12x</span>
+              </div>
+              <div class="info-row">
+                <span>Kelly Wager Size</span>
+                <span id="mn-stat-kelly" class="font-outfit text-cyan" style="font-weight: 700;">--</span>
+              </div>
+              <div class="info-row" id="mn-rec-row-container" style="border-top: 1px dashed rgba(0, 242, 254, 0.15); padding-top: 0.75rem; margin-top: 0.5rem;">
+                <span style="display:flex; align-items:center; gap:0.25rem;"><i data-lucide="crosshair" style="width:12px; height:12px; color:var(--gold);"></i> AI Target Click</span>
+                <span id="mn-stat-suggested" class="font-outfit text-gold" style="font-weight: 700;">Row: -, Col: -</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Training Chart -->
+        <div class="glass-card" style="margin-top: 1.5rem; display: none;" id="mn-chart-card">
+          <div class="card-title"><i data-lucide="line-chart"></i> Optimized Strategy Bankroll Simulation</div>
+          <div style="height: 220px; position: relative;">
+            <canvas id="mn-simulation-chart"></canvas>
+          </div>
+        </div>
+      </section>
+
+      <!-- ====================================================================
+           LIMBO TARGET MECHANICS PANEL
+           ==================================================================== -->
+      <section class="panel" id="limbo-panel">
+        <div class="panel-header">
+          <div class="panel-title">
+            <h2>Limbo Target Mechanics</h2>
+            <p>Track payout odds, configure streak-recovery bets, and run roll simulations.</p>
+          </div>
+          <button class="btn btn-secondary" id="lb-history-clear"><i data-lucide="trash-2"></i> Clear Logs</button>
+        </div>
+
+        <div class="grid-container">
+          <!-- Roll Inputs -->
+          <div class="glass-card">
+            <div class="card-title"><i data-lucide="sliders"></i> Target Settings</div>
+            
+            <div class="form-row">
+              <div class="form-group">
+                <label for="lb-target">Target Multiplier (1.01x - 1000x)</label>
+                <input type="number" id="lb-target" value="2.00" min="1.01" step="0.1">
+              </div>
+              <div class="form-group">
+                <label for="lb-bet">Base Unit Bet ($)</label>
+                <input type="number" id="lb-bet" value="10" min="1">
+              </div>
+            </div>
+
+            <div class="form-row" style="margin-top: 0.5rem;">
+              <div class="form-group">
+                <label for="lb-progression">Loss Progression Strategy</label>
+                <select id="lb-progression">
+                  <option value="sals">Satta Adaptive Limbo Strategizer (SALS)</option>
+                  <option value="recovery">Streak Loss Recovery (Math optimal)</option>
+                  <option value="martingale">Classic Martingale (Double x2)</option>
+                  <option value="constant">Constant Base Bet</option>
+                </select>
+              </div>
+            </div>
+
+            <div style="display: flex; gap: 1rem; margin: 1.5rem 0 0.5rem 0;">
+              <button class="btn btn-primary" id="lb-roll-btn" style="flex: 2; font-size: 1.2rem; height: 50px;">⚡ ROLL MULTIPLIER</button>
+              <button class="btn btn-secondary" id="lb-auto-btn" style="flex: 1;">Auto (10x)</button>
+            </div>
+
+            <!-- Limbo Big Number Ticker -->
+            <div style="display: flex; flex-direction: column; align-items: center; margin: 1rem 0; padding: 1.5rem; background: rgba(255,255,255,0.02); border-radius: var(--radius-md); border: 1px solid rgba(255,255,255,0.05); position: relative;">
+              <!-- Recent Outcomes list like Stake -->
+              <div id="lb-recent-outcomes" style="position: absolute; top: 10px; right: 10px; display: flex; gap: 6px; overflow-x: auto; max-width: 90%;"></div>
+              <div id="lb-ticker" style="font-family: 'Orbitron', sans-serif; font-size: 3rem; font-weight: 800; color: #ffffff; text-shadow: 0 0 10px rgba(255,255,255,0.2); margin-top: 1rem;">1.00x</div>
+            </div>
+
+            <!-- AI Optimizer -->
+            <div class="card-title" style="margin-top: 1.5rem;"><i data-lucide="cpu"></i> AI Strategy Trainer</div>
+            <div style="display: flex; gap: 1rem; align-items: center;">
+              <button class="btn btn-cyan" id="lb-train-btn" style="flex: 1;">⚡ Train Strategy</button>
+              <div style="flex: 1; font-size: 0.75rem; color: var(--text-secondary);">
+                Runs 10,000 Monte Carlo rounds for current target & progression.
+              </div>
+            </div>
+            
+            <div id="lb-train-results" style="display: none; margin-top: 1rem; padding: 0.75rem; background: rgba(0, 242, 254, 0.05); border: 1px dashed rgba(0, 242, 254, 0.2); border-radius: var(--radius-sm);">
+              <div style="font-size:0.8rem; font-weight:700; color:var(--cyan); margin-bottom:0.25rem;">Simulation Yield Results:</div>
+              <div style="font-size:0.75rem; color:var(--text-primary); line-height:1.4;">
+                • Net Profit/Loss: <span id="lb-opt-profit" style="font-weight:700;">-</span><br>
+                • Max Bet Size Hit: <span id="lb-opt-maxbet">-</span><br>
+                • Max Loss Streak: <span id="lb-opt-streak">-</span> rounds
+              </div>
+            </div>
+
+            <!-- Custom Dataset Training -->
+            <div class="card-title" style="margin-top: 1.5rem;"><i data-lucide="database"></i> Train on Custom Dataset</div>
+            <div class="form-group" style="margin-bottom: 0.75rem;">
+              <label for="lb-dataset-input">Paste Roll History (comma-separated multipliers)</label>
+              <textarea id="lb-dataset-input" rows="3" placeholder="e.g. 1.50, 0.98, 12.4, 2.05, 1.80, 5.4, 0.99, 2.1" style="width: 100%; font-family: monospace; background: rgba(0, 0, 0, 0.25); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: var(--radius-sm); color: var(--text-primary); padding: 0.5rem; font-size: 0.75rem; resize: vertical; outline: none; margin-top: 0.25rem;"></textarea>
+            </div>
+            <div style="display: flex; gap: 1rem; align-items: center;">
+              <button class="btn btn-primary" id="lb-import-dataset-btn" style="flex: 1.2; font-size: 0.8rem; height: 36px; padding: 0;">📥 Load & Train</button>
+              <button class="btn btn-secondary" id="lb-clear-dataset-btn" style="flex: 0.8; font-size: 0.8rem; height: 36px; padding: 0;">Reset</button>
+            </div>
+            <div id="lb-dataset-status" style="font-size: 0.72rem; color: var(--text-secondary); margin-top: 0.5rem; line-height: 1.3;">
+              Loaded: 0 rolls. Volatility thresholds trained to default.
+            </div>
+          </div>
+
+          <!-- Strategy Advice -->
+          <div class="prediction-hud">
+            <div class="advisor-banner pulse-primary" id="lb-advisor-banner">
+              <div class="advisor-label">Calculated Next Bet</div>
+              <div class="advisor-choice text-cyan" id="lb-advice-choice">$10.00</div>
+              <div class="advisor-desc" id="lb-advice-explanation">Target is 2.00x. Play recommended streak recovery betting sizes.</div>
+              <div class="bet-sizing-rec" id="lb-bet-rec"></div>
+            </div>
+
+            <!-- SVG Win Dial -->
+            <div class="glass-card">
+              <div class="card-title"><i data-lucide="percent"></i> Win Probability</div>
+              <div class="radial-gauge-container">
+                <svg class="radial-gauge-svg">
+                  <circle class="radial-gauge-bg-ring" cx="70" cy="70" r="45"></circle>
+                  <circle class="radial-gauge-fill-ring" id="lb-gauge-fill" cx="70" cy="70" r="45" style="stroke-dashoffset: 141.35;"></circle>
+                </svg>
+                <div class="radial-gauge-text">
+                  <span class="gauge-pct" id="lb-prob-val">49.5%</span>
+                  <span class="gauge-label">Payout Prob</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Metrics -->
+            <div class="glass-card">
+              <div class="card-title"><i data-lucide="info"></i> Session Metrics</div>
+              <div class="info-row">
+                <span>Profit / Loss</span>
+                <span id="lb-stat-profit" class="font-outfit text-success" style="font-weight: 700;">$0.00</span>
+              </div>
+              <div class="info-row">
+                <span>Optimal Recovery Bet</span>
+                <span id="lb-stat-recovery" class="font-outfit text-gold" style="font-weight: 700;">$10.00</span>
+              </div>
+              <div class="info-row">
+                <span>Current Loss Streak</span>
+                <span id="lb-stat-streak" class="font-outfit text-purple" style="font-weight: 700;">0</span>
+              </div>
+              <div class="info-row" style="border-top: 1px dashed rgba(0, 242, 254, 0.15); padding-top: 0.75rem; margin-top: 0.5rem;">
+                <span style="display:flex; align-items:center; gap:0.25rem;"><i data-lucide="trending-up" style="width:12px; height:12px; color:var(--cyan);"></i> Volatility Std Dev</span>
+                <span id="lb-stat-volatility" class="font-outfit text-cyan" style="font-weight: 700;">0.00</span>
+              </div>
+              <div class="info-row">
+                <span style="display:flex; align-items:center; gap:0.25rem;"><i data-lucide="target" style="width:12px; height:12px; color:var(--gold);"></i> AI Target Multiplier</span>
+                <span id="lb-stat-aitarget" class="font-outfit text-gold" style="font-weight: 700;">1.80x</span>
+              </div>
+              <div class="info-row">
+                <span style="display:flex; align-items:center; gap:0.25rem;"><i data-lucide="wallet" style="width:12px; height:12px; color:var(--primary);"></i> Capital Sizing Wager</span>
+                <span id="lb-stat-capitalsize" class="font-outfit text-purple" style="font-weight: 700;">HIGH CAPITAL</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- History & Chart -->
+        <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 1.5rem; margin-top: 1.5rem;">
+          <div class="glass-card">
+            <div class="card-title"><i data-lucide="history"></i> Roll Ledger</div>
+            <div id="lb-history-list" class="step-sequence" style="max-height: 220px; overflow-y: auto;">
+              <!-- Dynamic items -->
+            </div>
+          </div>
+          <div class="glass-card" style="display: none;" id="lb-chart-card">
+            <div class="card-title"><i data-lucide="line-chart"></i> Target Bankroll Trend Analysis</div>
+            <div style="height: 220px; position: relative;">
+              <canvas id="lb-simulation-chart"></canvas>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ====================================================================
+           CRASH ROCKET PREDICTOR PANEL
+           ==================================================================== -->
+      <section class="panel" id="crash-panel">
+        <div class="panel-header">
+          <div class="panel-title">
+            <h2>Crash Rocket Predictor</h2>
+            <p>Simulate exponential rocket ascents, model realtime crash hazards, and cash out safely.</p>
+          </div>
+          <div style="display: flex; gap: 0.5rem;">
+            <button class="btn btn-cyan" id="crsh-start-btn">Start Rocket</button>
+            <button class="btn btn-danger" id="crsh-cashout-btn" disabled>CASH OUT</button>
+          </div>
+        </div>
+
+        <div class="grid-container">
+          <!-- Interactive Rocket Canvas Simulator -->
+          <div class="glass-card">
+            <div class="card-title"><i data-lucide="rocket"></i> Flight Path Simulator</div>
+            <div style="position: relative; width: 100%; height: 260px; background: rgba(0, 0, 0, 0.2); border-radius: var(--radius-sm); border: 1px solid rgba(255,255,255,0.05); overflow: hidden;">
+              <canvas id="crsh-canvas" width="450" height="260" style="display: block; width: 100%; height: 100%;"></canvas>
+            </div>
+            
+            <div class="form-row" style="margin-top: 1rem;">
+              <div class="form-group">
+                <label for="crsh-bet">Wager Size ($)</label>
+                <input type="number" id="crsh-bet" value="10" min="1">
+              </div>
+              <div class="form-group">
+                <label for="crsh-auto-cash">Auto Cash Out Multiplier</label>
+                <input type="number" id="crsh-auto-cash" value="2.00" min="1.01" step="0.1">
+              </div>
+            </div>
+          </div>
+
+          <!-- Deep AI Training & Prediction -->
+          <div class="prediction-hud">
+            <div class="advisor-banner pulse-primary" id="crsh-advisor-banner">
+              <div class="advisor-label">Markov-Chain Risk Indicator</div>
+              <div class="advisor-choice text-cyan" id="crsh-advice-choice">AWAITING ROUND</div>
+              <div class="advisor-desc" id="crsh-advice-explanation">Press Start Rocket to test crash predictions.</div>
+              <div class="bet-sizing-rec" id="crsh-bet-rec"></div>
+            </div>
+
+            <!-- SVG Win Dial -->
+            <div class="glass-card">
+              <div class="card-title"><i data-lucide="percent"></i> Live Safety Probability</div>
+              <div class="radial-gauge-container">
+                <svg class="radial-gauge-svg">
+                  <circle class="radial-gauge-bg-ring" cx="70" cy="70" r="45"></circle>
+                  <circle class="radial-gauge-fill-ring" id="crsh-gauge-fill" cx="70" cy="70" r="45" style="stroke-dashoffset: 282.7;"></circle>
+                </svg>
+                <div class="radial-gauge-text">
+                  <span class="gauge-pct" id="crsh-prob-val">--%</span>
+                  <span class="gauge-label">Reaches Target</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Risk Matrix & Statistics -->
+            <div class="glass-card">
+              <div class="card-title"><i data-lucide="activity"></i> Probability Matrix</div>
+              <div class="info-row">
+                <span>Bust Prob (<1.3x)</span>
+                <span id="crsh-prob-bust" class="font-outfit text-crimson" style="font-weight: 700;">--%</span>
+              </div>
+              <div class="info-row">
+                <span>Low Run (1.3-2x)</span>
+                <span id="crsh-prob-low" class="font-outfit text-purple" style="font-weight: 700;">--%</span>
+              </div>
+              <div class="info-row">
+                <span>Medium Run (2-5x)</span>
+                <span id="crsh-prob-medium" class="font-outfit text-cyan" style="font-weight: 700;">--%</span>
+              </div>
+              <div class="info-row">
+                <span>High Run (>5x)</span>
+                <span id="crsh-prob-high" class="font-outfit text-emerald" style="font-weight: 700;">--%</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Strategy training simulation & history -->
+        <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 1.5rem; margin-top: 1.5rem;">
+          <div class="glass-card">
+            <!-- Simulator settings & actions -->
+            <div class="card-title"><i data-lucide="history"></i> Flight Ledger</div>
+            <div id="crsh-history-list" class="step-sequence" style="max-height: 220px; overflow-y: auto;">
+              <!-- Past rounds -->
+            </div>
+          </div>
+          
+          <div class="glass-card">
+            <div class="card-title"><i data-lucide="cpu"></i> AI Auto-Cashout Strategy Optimizer</div>
+            <div style="display: flex; gap: 1rem; align-items: center; margin-bottom: 1rem;">
+              <button class="btn btn-cyan" id="crsh-train-btn" style="flex: 1;">⚡ Train Strategy</button>
+              <div style="flex: 2; font-size: 0.75rem; color: var(--text-secondary);">
+                Runs 5,000 Monte Carlo simulations at different targets to find the best expected ROI.
+              </div>
+            </div>
+            <div id="crsh-train-results" style="display: none; margin-bottom: 1rem; padding: 0.75rem; background: rgba(0, 242, 254, 0.05); border: 1px dashed rgba(0, 242, 254, 0.2); border-radius: var(--radius-sm);">
+              <div style="font-size:0.8rem; font-weight:700; color:var(--cyan); margin-bottom:0.25rem;">Simulation Yield Results:</div>
+              <div style="font-size:0.75rem; color:var(--text-primary); line-height:1.4;">
+                • Recommended Auto-Cashout Multiplier: <strong id="crsh-opt-mult" class="text-gold">-</strong><br>
+                • Estimated Win Rate: <span id="crsh-opt-winrate">-</span>%<br>
+                • Expected Profit over 5,000 Rounds: <span id="crsh-opt-profit" style="font-weight:700;" class="text-emerald">-</span>
+              </div>
+            </div>
+            <div style="height: 180px; position: relative; display: none;" id="crsh-chart-card">
+              <canvas id="crsh-simulation-chart"></canvas>
+            </div>
           </div>
         </div>
       </section>
@@ -775,6 +1255,7 @@
               <div class="advisor-label">Calculated Next Bet</div>
               <div class="advisor-choice text-purple" id="cs-advice-choice">$10.00</div>
               <div class="advisor-desc" id="cs-advice-explanation">Awaiting iterations.</div>
+              <div class="bet-sizing-rec" id="cs-bet-rec"></div>
             </div>
 
             <!-- SVG Radial Win Dial -->
@@ -849,6 +1330,12 @@
                </div>
             </div>
           </div>
+          <div class="glass-card">
+            <div class="card-title text-purple"><i data-lucide="brain"></i> Live Neural Net Status</div>
+            <div id="analytics-nn-list" class="step-sequence" style="max-height: 280px; overflow-y: auto;">
+              <!-- Dynamically populated -->
+            </div>
+          </div>
         </div>
       </section>
 
@@ -856,11 +1343,15 @@
   </div>
 
   <!-- Engines and Core Application -->
+  <script src="js/ai_predictor.js"></script>
   <script src="js/blackjack.js"></script>
   <script src="js/roulette.js"></script>
   <script src="js/baccarat.js"></script>
   <script src="js/poker.js"></script>
   <script src="js/craps.js"></script>
+  <script src="js/mines.js"></script>
+  <script src="js/limbo.js"></script>
+  <script src="js/crash.js"></script>
   <script src="js/vision.js"></script>
   <script src="app.js"></script>
 </body>

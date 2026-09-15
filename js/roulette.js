@@ -49,6 +49,11 @@ class RouletteEngine {
     const roundBet = this.currentBet;
     let roundProfit = won ? roundBet : -roundBet;
     
+    if (window.SattaAIPredictor) {
+      const pastColors = this.history.map(h => h.won ? 'R' : 'B');
+      window.SattaAIPredictor.learnRoulette(pastColors, won ? 'R' : 'B');
+    }
+    
     // Record history
     this.history.push({
       step: this.history.length + 1,

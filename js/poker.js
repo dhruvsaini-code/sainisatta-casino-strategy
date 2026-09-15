@@ -275,8 +275,75 @@ function getPokerAdvice(equity, potSize = 100, callSize = 20) {
   };
 }
 
+function calculateOuts(playerCards, boardCards) {
+  if (playerCards.length < 2 || boardCards.length < 3 || boardCards.length >= 5) {
+    return { outs: [], count: 0, text: "Outs calculation only available on Flop (3-card board) or Turn (4-card board)." };
+  }
+
+  const parsedPlayer = playerCards.map(c => ({
+    rank: c.slice(0, -1),
+    suit: c.slice(-1),
+    value: rankToScore(c.slice(0, -1))
+  }));
+  
+  const parsedBoard = boardCards.map(c => ({
+    rank: c.slice(0, -1),
+    suit: c.slice(-1),
+    value: rankToScore(c.slice(0, -1))
+  }));
+
+  const currentHand = getBest5CardHand([...parsedPlayer, ...parsedBoard]);
+  const currentType = currentHand ? currentHand.type : HAND_TYPES.HIGH_CARD;
+
+  // Build remaining deck
+  const usedCardStrings = new Set([...playerCards, ...boardCards]);
+  const baseDeck = [];
+  const cardSuits = ['s', 'h', 'd', 'c'];
+  const cardRanks = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'];
+  for (let r of cardRanks) {
+    for (let s of cardSuits) {
+      const cardStr = r + s;
+      if (!usedCardStrings.has(cardStr)) {
+        baseDeck.push({ rank: r, suit: s, value: rankToScore(r) });
+      }
+    }
+  }
+
+  const outs = [];
+  for (let card of baseDeck) {
+    const nextBoard = [...parsedBoard, card];
+    const nextHand = getBest5CardHand([...parsedPlayer, ...nextBoard]);
+    if (nextHand && nextHand.type > currentType) {
+      outs.push(card);
+    } else if (nextHand && currentType === HAND_TYPES.PAIR && nextHand.type === HAND_TYPES.PAIR) {
+      // If we had a pair, make sure our score increased significantly (e.g. hitting trips/two-pair)
+      if (nextHand.score > currentHand.score + 50) {
+        outs.push(card);
+      }
+    }
+  }
+
+  const suitSymbols = { 's': '♠', 'h': '♥', 'd': '♦', 'c': '♣' };
+  let count = outs.length;
+  let summary = "";
+  if (count === 0) {
+    summary = "No clear improving outs detected.";
+  } else {
+    const outsStr = outs.map(c => c.rank + suitSymbols[c.suit]).join(", ");
+    const nextStreetProb = ((count / baseDeck.length) * 100).toFixed(1);
+    summary = `${count} Outs detected: [${outsStr}]. Probability of hitting on next card: ${nextStreetProb}%.`;
+  }
+
+  return {
+    outs: outs.map(c => c.rank + c.suit),
+    count,
+    text: summary
+  };
+}
+
 // Export for app use
 window.PokerEngine = {
   runSimulation: runPokerSimulation,
-  getAdvice: getPokerAdvice
+  getAdvice: getPokerAdvice,
+  calculateOuts
 };

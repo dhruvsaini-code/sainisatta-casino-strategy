@@ -115,7 +115,7 @@ function analyzeHand(playerCards) {
   return { total, isSoft, isPair };
 }
 
-function getBlackjackRecommendation(playerInputCards, dealerUpcard) {
+function getBlackjackRecommendation(playerInputCards, dealerUpcard, trueCount = 0) {
   if (!playerInputCards || playerInputCards.length < 2 || !dealerUpcard) {
     return {
       action: 'N/A',
@@ -135,6 +135,21 @@ function getBlackjackRecommendation(playerInputCards, dealerUpcard) {
       explanation: 'Your hand total exceeds 21. You lose.'
     };
   }
+
+  if (window.SattaAIPredictor) {
+    const dValStr = ['K', 'Q', 'J'].includes(dealerUpcard) ? '10' : dealerUpcard;
+    const dVal = dValStr === 'A' ? 11 : parseInt(dValStr, 10);
+    const pred = window.SattaAIPredictor.predictBlackjack(total, dVal, trueCount, isSoft);
+    return {
+      action: pred.action,
+      actionText: pred.actionText,
+      winPercentage: pred.winPercentage,
+      explanation: pred.explanation,
+      total,
+      isSoft,
+      isPair
+    };
+  }
   
   if (total === 21 && playerInputCards.length === 2) {
     return {
@@ -147,45 +162,104 @@ function getBlackjackRecommendation(playerInputCards, dealerUpcard) {
   
   let recCode = 'H';
   let explanation = '';
+  let deviationApplied = false;
   
   const dValStr = ['K', 'Q', 'J'].includes(dealerUpcard) ? '10' : dealerUpcard;
   
-  // Pair Logic
-  if (isPair) {
-    const pairRank = playerInputCards[0];
-    const key = `${pairRank},${pairRank}`;
-    if (BLACKJACK_STRATEGY.pairs[key]) {
-      recCode = BLACKJACK_STRATEGY.pairs[key][dValStr] || 'H';
-      explanation = `Pairs of ${pairRank}s are analyzed for splitting. `;
-    }
-  } 
-  // Soft Hand Logic
-  else if (isSoft) {
-    // A soft hand consists of an Ace and another card total. E.g. Ace and 6 = Soft 17
-    const nonAceTotal = total - 11;
-    const key = `A,${nonAceTotal}`;
-    if (BLACKJACK_STRATEGY.soft[key]) {
-      recCode = BLACKJACK_STRATEGY.soft[key][dValStr] || 'H';
-      explanation = `Soft total of ${total} (Ace + ${nonAceTotal}). `;
-    } else {
-      // If soft total exceeds 19, standard advice is stand
-      recCode = total >= 20 ? 'S' : 'H';
-      explanation = `Soft total of ${total}. `;
-    }
-  } 
-  // Hard Hand Logic
-  else {
-    let lookupTotal = total;
-    if (total >= 17) lookupTotal = 17;
-    if (total <= 8) lookupTotal = 8;
-    
-    const key = `${lookupTotal}`;
-    if (BLACKJACK_STRATEGY.hard[key]) {
-      recCode = BLACKJACK_STRATEGY.hard[key][dValStr] || 'H';
-      explanation = `Hard total of ${total}. `;
-    } else {
+  // Illustrious 18 Heuristics / Count Deviations
+  if (!isSoft && !isPair) {
+    if (total === 16 && dValStr === '10' && trueCount >= 0) {
+      recCode = 'S';
+      explanation = `[Illustrious 18 Deviation] True Count is ${trueCount.toFixed(1)} (>= 0). Stand on Hard 16 vs 10 (standard is Hit). `;
+      deviationApplied = true;
+    } else if (total === 15 && dValStr === '10' && trueCount >= 4) {
+      recCode = 'S';
+      explanation = `[Illustrious 18 Deviation] True Count is ${trueCount.toFixed(1)} (>= +4). Stand on Hard 15 vs 10 (standard is Hit). `;
+      deviationApplied = true;
+    } else if (total === 12 && dValStr === '3' && trueCount >= 2) {
+      recCode = 'S';
+      explanation = `[Illustrious 18 Deviation] True Count is ${trueCount.toFixed(1)} (>= +2). Stand on Hard 12 vs 3 (standard is Hit). `;
+      deviationApplied = true;
+    } else if (total === 12 && dValStr === '2' && trueCount >= 3) {
+      recCode = 'S';
+      explanation = `[Illustrious 18 Deviation] True Count is ${trueCount.toFixed(1)} (>= +3). Stand on Hard 12 vs 2 (standard is Hit). `;
+      deviationApplied = true;
+    } else if (total === 11 && dValStr === 'A' && trueCount >= 1) {
+      recCode = 'D';
+      explanation = `[Illustrious 18 Deviation] True Count is ${trueCount.toFixed(1)} (>= +1). Double Down on Hard 11 vs Ace (standard is Hit). `;
+      deviationApplied = true;
+    } else if (total === 10 && dValStr === '10' && trueCount >= 4) {
+      recCode = 'D';
+      explanation = `[Illustrious 18 Deviation] True Count is ${trueCount.toFixed(1)} (>= +4). Double Down on Hard 10 vs 10 (standard is Hit). `;
+      deviationApplied = true;
+    } else if (total === 10 && dValStr === 'A' && trueCount >= 4) {
+      recCode = 'D';
+      explanation = `[Illustrious 18 Deviation] True Count is ${trueCount.toFixed(1)} (>= +4). Double Down on Hard 10 vs Ace (standard is Hit). `;
+      deviationApplied = true;
+    } else if (total === 9 && dValStr === '2' && trueCount >= 1) {
+      recCode = 'D';
+      explanation = `[Illustrious 18 Deviation] True Count is ${trueCount.toFixed(1)} (>= +1). Double Down on Hard 9 vs 2 (standard is Hit). `;
+      deviationApplied = true;
+    } else if (total === 9 && dValStr === '7' && trueCount >= 3) {
+      recCode = 'D';
+      explanation = `[Illustrious 18 Deviation] True Count is ${trueCount.toFixed(1)} (>= +3). Double Down on Hard 9 vs 7 (standard is Hit). `;
+      deviationApplied = true;
+    } else if (total === 16 && dValStr === '9' && trueCount >= 5) {
+      recCode = 'S';
+      explanation = `[Illustrious 18 Deviation] True Count is ${trueCount.toFixed(1)} (>= +5). Stand on Hard 16 vs 9 (standard is Hit). `;
+      deviationApplied = true;
+    } else if (total === 13 && dValStr === '2' && trueCount <= -1) {
       recCode = 'H';
-      explanation = `Hard total of ${total}. `;
+      explanation = `[Illustrious 18 Deviation] True Count is ${trueCount.toFixed(1)} (<= -1). Hit on Hard 13 vs 2 (standard is Stand). `;
+      deviationApplied = true;
+    } else if (total === 13 && dValStr === '3' && trueCount <= -2) {
+      recCode = 'H';
+      explanation = `[Illustrious 18 Deviation] True Count is ${trueCount.toFixed(1)} (<= -2). Hit on Hard 13 vs 3 (standard is Stand). `;
+      deviationApplied = true;
+    }
+  }
+
+  // Insurance Check
+  if (dealerUpcard === 'A' && trueCount >= 3) {
+    explanation += `[Insurance Alert] True Count is ${trueCount.toFixed(1)} (>= +3). It is mathematically profitable to take Insurance! `;
+  }
+
+  if (!deviationApplied) {
+    // Pair Logic
+    if (isPair) {
+      const pairRank = playerInputCards[0];
+      const key = `${pairRank},${pairRank}`;
+      if (BLACKJACK_STRATEGY.pairs[key]) {
+        recCode = BLACKJACK_STRATEGY.pairs[key][dValStr] || 'H';
+        explanation = `Pairs of ${pairRank}s are analyzed for splitting. `;
+      }
+    } 
+    // Soft Hand Logic
+    else if (isSoft) {
+      const nonAceTotal = total - 11;
+      const key = `A,${nonAceTotal}`;
+      if (BLACKJACK_STRATEGY.soft[key]) {
+        recCode = BLACKJACK_STRATEGY.soft[key][dValStr] || 'H';
+        explanation = `Soft total of ${total} (Ace + ${nonAceTotal}). `;
+      } else {
+        recCode = total >= 20 ? 'S' : 'H';
+        explanation = `Soft total of ${total}. `;
+      }
+    } 
+    // Hard Hand Logic
+    else {
+      let lookupTotal = total;
+      if (total >= 17) lookupTotal = 17;
+      if (total <= 8) lookupTotal = 8;
+      
+      const key = `${lookupTotal}`;
+      if (BLACKJACK_STRATEGY.hard[key]) {
+        recCode = BLACKJACK_STRATEGY.hard[key][dValStr] || 'H';
+        explanation = `Hard total of ${total}. `;
+      } else {
+        recCode = 'H';
+        explanation = `Hard total of ${total}. `;
+      }
     }
   }
   
@@ -202,24 +276,32 @@ function getBlackjackRecommendation(playerInputCards, dealerUpcard) {
   const bustChance = DEALER_BUST_CHANCES[dValStr] || 25;
   
   if (actionText.includes('Stand')) {
-    explanation += `Standing is optimal because drawing another card carries a high bust risk, and the dealer upcard of ${dealerUpcard} has a ${bustChance}% chance of busting.`;
-    // Stand win chance estimates
+    if (!deviationApplied) {
+      explanation += `Standing is optimal because drawing another card carries a high bust risk, and the dealer upcard of ${dealerUpcard} has a ${bustChance}% chance of busting.`;
+    }
     if (total >= 19) winPercentage = 65 + (total - 19) * 10;
     else if (total >= 17) winPercentage = 52 + (total - 17) * 5;
-    else winPercentage = 20 + bustChance; // Relying on dealer bust
+    else winPercentage = 20 + bustChance;
   } else if (actionText.includes('Hit')) {
-    explanation += `Hitting is optimal to improve your hand. With a total of ${total}, your risk of busting on a single hit is low, whereas standing gives the dealer an easy path to beat you.`;
+    if (!deviationApplied) {
+      explanation += `Hitting is optimal to improve your hand. With a total of ${total}, your risk of busting on a single hit is low, whereas standing gives the dealer an easy path to beat you.`;
+    }
     if (total <= 11) winPercentage = 45 + (11 - total) * 2;
     else winPercentage = 25 + (21 - total) * 2;
   } else if (actionText.includes('Double')) {
-    explanation += `Double Down. You are in a strong mathematical position against the dealer upcard of ${dealerUpcard}. Doubling your wager maximizes long-term expected value.`;
+    if (!deviationApplied) {
+      explanation += `Double Down. You are in a strong mathematical position against the dealer upcard of ${dealerUpcard}. Doubling your wager maximizes long-term expected value.`;
+    }
     winPercentage = 58;
   } else if (actionText.includes('Split')) {
-    explanation += `Splitting is optimal. Breaking your pair into two separate hands increases your overall winning equity.`;
+    if (!deviationApplied) {
+      explanation += `Splitting is optimal. Breaking your pair into two separate hands increases your overall winning equity.`;
+    }
     winPercentage = 53;
   }
   
-  // Bound the percentage between 5% and 95%
+  // Adjust win percentage based on True Count (count increases player win probability slightly)
+  winPercentage += Math.round(trueCount * 0.5);
   winPercentage = Math.max(5, Math.min(95, Math.round(winPercentage)));
   
   return {
@@ -233,10 +315,69 @@ function getBlackjackRecommendation(playerInputCards, dealerUpcard) {
   };
 }
 
+// Card Counting state variables
+let cardCountHistory = [];
+let shoeDecks = 6;
+
+function getHiLoValue(rank) {
+  if (['10', 'J', 'Q', 'K', 'A'].includes(rank)) return -1;
+  if (['2', '3', '4', '5', '6'].includes(rank)) return 1;
+  return 0;
+}
+
+function addDealtCardToCount(rank) {
+  cardCountHistory.push(rank);
+}
+
+function removeDealtCardFromCount(index) {
+  if (index >= 0 && index < cardCountHistory.length) {
+    cardCountHistory.splice(index, 1);
+  }
+}
+
+function clearShoeCount() {
+  cardCountHistory = [];
+}
+
+function getRunningCount() {
+  return cardCountHistory.reduce((sum, rank) => sum + getHiLoValue(rank), 0);
+}
+
+function getRemainingDecks() {
+  const cardsDealt = cardCountHistory.length;
+  const totalCards = shoeDecks * 52;
+  const cardsRemaining = Math.max(0, totalCards - cardsDealt);
+  return cardsRemaining / 52;
+}
+
+function getTrueCount() {
+  const remDecks = getRemainingDecks();
+  if (remDecks < 0.25) return getRunningCount() / 0.25;
+  return getRunningCount() / remDecks;
+}
+
+function getRecommendedBetMultiplier() {
+  const tc = getTrueCount();
+  if (tc <= 1.0) return 1;
+  if (tc >= 5.0) return 5;
+  return Math.round(tc);
+}
+
 // Export for app use
 window.BlackjackEngine = {
   getRecommendation: getBlackjackRecommendation,
   analyzeHand: analyzeHand,
   getCardValue: getCardValue,
-  dealerBustChances: DEALER_BUST_CHANCES
+  dealerBustChances: DEALER_BUST_CHANCES,
+  addDealtCardToCount,
+  removeDealtCardFromCount,
+  clearShoeCount,
+  getRunningCount,
+  getTrueCount,
+  getRemainingDecks,
+  getRecommendedBetMultiplier,
+  getHiLoValue,
+  getShoeDecks: () => shoeDecks,
+  setShoeDecks: (num) => { shoeDecks = parseInt(num, 10) || 6; },
+  getDealtCards: () => cardCountHistory
 };

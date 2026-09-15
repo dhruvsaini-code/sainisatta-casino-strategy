@@ -1,4 +1,4 @@
-# AegisBet Full-Stack Flask Backend & SQLite Database Server
+# sainisatta Full-Stack Flask Backend & SQLite Database Server
 
 import os
 import sqlite3
