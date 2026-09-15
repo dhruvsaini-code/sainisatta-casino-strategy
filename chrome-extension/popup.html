@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>sainisatta Strategizer Overlay</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+
+  <!-- Top Navigation Header -->
+  <header>
+    <div class="brand">
+      <div class="logo-icon">S</div>
+      <div>
+        <h1 class="brand-name">sainisatta Live</h1>
+      </div>
+    </div>
+    <span class="badge">OVERLAY HUD</span>
+  </header>
+
+  <div class="main-content">
+    
+    <!-- Capture Screen & Console -->
+    <div class="glass-card">
+      <div class="card-title">👁 Live Screen Reader</div>
+      
+      <div class="scanning-box" id="preview-box">
+        <div class="scanning-line" id="scan-line"></div>
+        <div id="preview-placeholder" style="font-size: 0.75rem; color: var(--text-secondary); text-align: center; padding: 0.5rem;">
+          <span style="font-size: 1.5rem; display: block; margin-bottom: 0.25rem;">📸</span>
+          Awaiting active tab capture stream
+        </div>
+        <img id="preview-thumbnail" style="display: none; width: 100%; height: 100%; object-fit: cover; opacity: 0.6;" src="">
+      </div>
+
+      <button class="btn btn-primary" id="capture-btn">⚡ CAPTURE & ANALYZE SCREEN</button>
+    </div>
+
+    <!-- Prediction HUD -->
+    <div class="advisor-banner">
+      <div class="advisor-label" id="hud-label">Live Decision Advice</div>
+      <div class="advisor-choice text-cyan" id="hud-action">AWAITING CAPTURE</div>
+      <div class="advisor-desc" id="hud-explanation">Navigate to your online casino table and click the button above to extract cards or table layout and get live EV advice.</div>
+    </div>
+
+    <!-- Probability HUD -->
+    <div class="glass-card">
+      <div class="card-title">📊 Mathematical Probability HUD</div>
+      <div class="hud-row">
+        <span>Estimated Win Equity</span>
+        <span class="hud-value text-cyan" id="hud-win-percent">--%</span>
+      </div>
+      <div style="width: 100%; height: 6px; background: rgba(255, 255, 255, 0.05); border-radius: 3px; overflow: hidden; margin: 0.25rem 0 0.75rem 0;">
+        <div id="hud-win-progress" style="width: 0%; height: 100%; background: linear-gradient(90deg, var(--primary), var(--secondary)); transition: width 0.3s;"></div>
+      </div>
+
+      <div class="hud-row">
+        <span>Classified Game Module</span>
+        <span class="hud-value text-gold" id="hud-game-name">-</span>
+      </div>
+      
+      <!-- Dynamic Parameters (Blackjack counts / poker outs / roulette wagers) -->
+      <div id="dynamic-metrics">
+        <!-- populated from js -->
+      </div>
+    </div>
+
+    <!-- Override Parameters -->
+    <div class="glass-card">
+      <div class="card-title">⚙ Config overrides</div>
+      <div class="hud-row" style="border: none; padding: 0;">
+        <select id="game-override-select">
+          <option value="auto">Auto-Classify (Live OCR Scanner)</option>
+          <option value="blackjack">Force Blackjack Engine</option>
+          <option value="poker">Force Texas Hold'em Engine</option>
+          <option value="roulette">Force Roulette Progression</option>
+          <option value="baccarat">Force Baccarat Engine</option>
+          <option value="mines">Force Mines Board</option>
+          <option value="limbo">Force Limbo Target</option>
+          <option value="crash">Force Crash Rocket</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Activity Stream Logs -->
+    <div class="glass-card">
+      <div class="card-title">🖥 Extension activity logs</div>
+      <div class="console-box" id="console-logs">
+        <div style="color: var(--text-muted);">Awaiting live screenshot capture stream...</div>
+      </div>
+    </div>
+
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

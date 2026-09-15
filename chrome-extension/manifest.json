@@ -1,0 +1,28 @@
+{
+  "manifest_version": 3,
+  "name": "sainisatta Pro Strategizer Overlay",
+  "version": "1.0",
+  "description": "Live casino strategy overlay companion. Capture casino screen layouts and compute optimal EV wagers.",
+  "permissions": [
+    "activeTab",
+    "scripting",
+    "storage"
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "sainisatta Pro Strategizer"
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["*://*.stake.com/*", "*://localhost/*", "*://127.0.0.1/*"],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ]
+}
