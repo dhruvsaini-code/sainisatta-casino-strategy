@@ -3,7 +3,7 @@
 import os
 import json
 import sqlite3
-from datetime import datetime
+from datetime import datetime, timezone
 from flask import Flask, request, jsonify, session, send_from_directory
 from werkzeug.security import generate_password_hash, check_password_hash
 
@@ -103,7 +103,7 @@ def health_check():
   return jsonify({
     'status': 'healthy',
     'version': '3.1.0',
-    'timestamp': datetime.utcnow().isoformat() + 'Z',
+    'timestamp': datetime.now(timezone.utc).isoformat(),
     'database': 'connected'
   }), 200
 
@@ -203,6 +203,7 @@ def track_game():
   cursor = conn.cursor()
   
   try:
+    now_iso = datetime.now(timezone.utc).isoformat()
     cursor.execute('''
       INSERT INTO game_analytics (user_id, game_name, access_count, last_accessed)
       VALUES (?, ?, 1, ?)
@@ -210,7 +211,7 @@ def track_game():
       DO UPDATE SET 
         access_count = access_count + 1,
         last_accessed = ?
-    ''', (session['user_id'], game_name, datetime.now(), datetime.now()))
+    ''', (session['user_id'], game_name, now_iso, now_iso))
     
     conn.commit()
     conn.close()
@@ -427,7 +428,7 @@ def export_user_data():
 
   return jsonify({
     'export_version': '1.0',
-    'exported_at': datetime.utcnow().isoformat() + 'Z',
+    'exported_at': datetime.now(timezone.utc).isoformat(),
     'user': user_info,
     'analytics': analytics,
     'sessions': sessions_data,
