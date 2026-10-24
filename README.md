@@ -1,14 +1,16 @@
 # 🎰 sainisatta — Premium Live Casino Strategy & AI Predictor Deck
 
-![Version](https://img.shields.io/badge/version-3.0.0-purple.svg)
+![Version](https://img.shields.io/badge/version-3.1.0-purple.svg)
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 ![Python](https://img.shields.io/badge/backend-Flask%203.0-green.svg)
 ![Frontend](https://img.shields.io/badge/frontend-HTML5%20%2F%20Vanilla%20CSS%20%2F%20ES6%2B-orange.svg)
 ![Extension](https://img.shields.io/badge/extension-Chrome%20Manifest%20V3-cyan.svg)
+![Tests](https://img.shields.io/badge/tests-14%20passing-brightgreen.svg)
+![CI](https://img.shields.io/badge/CI-GitHub%20Actions-blueviolet.svg)
 
 **sainisatta** is an advanced mathematical strategy companion and client-side AI engine built for real-time casino decision modeling, probability estimation, and vision-assisted screenshot scanning. 
 
-Equipped with a standalone Python Flask backend, pure JavaScript Artificial Neural Networks (ANN/RNN with Adam Optimizer), interactive Canvas renderers, and a Live Chrome Extension, `sainisatta` empowers users with mathematical edge calculations across 8 major casino verticals.
+Equipped with a standalone Python Flask backend, pure JavaScript Artificial Neural Networks (ANN/RNN with Adam Optimizer), Kelly Criterion bankroll engine, interactive Canvas renderers, and a Live Chrome Extension, `sainisatta` empowers users with mathematical edge calculations across 9 major casino verticals.
 
 ---
 
@@ -24,7 +26,12 @@ Equipped with a standalone Python Flask backend, pure JavaScript Artificial Neur
 - **Elman Recurrent Neural Network (RNN)**: Backpropagation Through Time (BPTT) engine for sequential data modeling in Crash, Limbo, Roulette, and Baccarat.
 - **Experience Replay Buffer**: Online continuous learning mechanism running locally inside browser `localStorage`.
 
-### 🎮 3. Multi-Game Strategy Modules
+### 💰 3. Kelly Criterion & Bankroll Risk Simulator (`js/bankroll.js`)
+- **Optimal Bet Sizing**: Exact Full Kelly ($f^* = \frac{bp - q}{b}$), Half Kelly, Quarter Kelly, and Eighth Kelly recommendations.
+- **Risk of Ruin (RoR)**: Closed-form Markov diffusion calculations and empirical simulation.
+- **Monte Carlo Trajectories**: Simulates 1,000 runs over 150+ bets and renders interactive multi-path confidence intervals (10th, 50th median, 90th percentile) with Take-Profit and Stop-Loss boundaries on a high-speed Canvas visualizer.
+
+### 🎮 4. Multi-Game Strategy Modules
 - **Blackjack Strategy Radar**: Basic strategy decision matrix, real-time SVG radial win dial, running count & True Count calculator (Hi-Lo system) with shoe penetration tracking.
 - **Roulette Progression Strategist**: Real-time Martingale, Fibonacci, D'Alembert, and Labouchere sequence calculators, interactive spinning wheel simulator, and balance trajectory chart.
 - **Baccarat Shoe Roadmaps**: Live Bead Plate & Big Road rendering with Banker/Player/Tie streak tracking and heuristic mode switching.
@@ -33,10 +40,15 @@ Equipped with a standalone Python Flask backend, pure JavaScript Artificial Neur
 - **Mines Tile Predictor**: 5x5 dynamic tile layout heatmaps powered by ANN pattern recognition.
 - **Limbo & Crash Engines**: Exponential rocket trajectory canvas animation, Markov chain risk prediction, auto-cashout Monte Carlo optimizer.
 
-### 🧩 4. Live Chrome Extension (`chrome-extension/`)
+### 🧩 5. Live Chrome Extension (`chrome-extension/`)
 - **Live Online Casino Overlay**: Inject floating real-time strategy HUD directly over online betting platforms (Stake, Roobet, BC.Game, etc.).
 - **Auto-OCR Screen Snapping**: One-click element selection & screen region capture.
-- **Popup Dashboard**: Seamless synchronization with the local `sainisatta` Flask backend.
+- **Backend Sync**: Live connection indicator syncing stats with local Flask server (`/api/health` and `/api/track`).
+- **Keyboard Shortcut**: Press `Alt+Shift+S` to instantly toggle the overlay anywhere.
+
+### 🎨 6. Multi-Theme Engine & Accessibility
+- **4 Curated Themes**: Cyber Dark (Default), Emerald VIP Lounge, Crimson High Roller, and Midnight OLED.
+- **Keyboard Shortcuts Modal**: Press `?` to view full cheat sheet; press `1-9, 0` for instant tab switching; `T` to cycle themes; `M` to mute sound effects.
 
 ---
 
@@ -45,13 +57,20 @@ Equipped with a standalone Python Flask backend, pure JavaScript Artificial Neur
 ```
 sainisatta/
 ├── index.html            # Main SPA dashboard UI (Glassmorphic dark design)
-├── style.css             # Vanilla CSS design system (tokens, glassmorphism, animations)
-├── app.js                # Core UI coordinator, event routing, sound engine & chart state
-├── server.py             # Flask backend with SQLite user auth & analytics tracking
+├── style.css             # Vanilla CSS design system (tokens, glassmorphism, multi-theme, animations)
+├── app.js                # Core UI coordinator, hotkeys, theme manager & event router
+├── server.py             # Flask backend with SQLite user auth, sessions, presets & CORS
 ├── requirements.txt      # Python backend dependencies (Flask, Werkzeug)
 ├── database.db           # Local SQLite database (git-ignored)
+├── .github/workflows/    # CI/CD automation suite
+│   └── ci.yml            # Multi-version Python & Node JS syntax validation workflow
+├── tests/                # Automated unit test suite
+│   ├── __init__.py
+│   ├── test_server.py    # Flask REST API tests (Auth, Sessions, Presets, Export, CORS)
+│   └── test_math_engines.py # Mathematical strategy verification (Kelly, Hi-Lo, Martingale, Limbo, Craps)
 ├── js/
 │   ├── ai_predictor.js   # ANN & RNN Neural Network core + Adam Optimizer + Experience Replay
+│   ├── bankroll.js       # Kelly Criterion & Monte Carlo trajectory canvas engine
 │   ├── vision.js         # Canvas OCR & screenshot scanning engine
 │   ├── blackjack.js      # Basic strategy & Hi-Lo shoe counting matrix
 │   ├── roulette.js       # Progression systems & canvas wheel renderer
@@ -62,12 +81,13 @@ sainisatta/
 │   ├── limbo.js          # Target multiplier odds & martingale calculator
 │   └── mines.js          # 5x5 dynamic tile grid generator & safety predictor
 └── chrome-extension/     # Manifest V3 Chrome Extension overlay
-    ├── manifest.json
-    ├── background.js
-    ├── content.js
-    ├── popup.html
-    ├── popup.css
-    └── popup.js
+    ├── manifest.json     # Manifest V3 declaration with icons & shortcuts
+    ├── background.js     # Background service worker
+    ├── content.js        # Background DOM watcher and auto-training script
+    ├── popup.html        # Overlay popup interface
+    ├── popup.css         # Extension styling
+    ├── popup.js          # Extension AI predictor and local server sync
+    └── icons/            # Extension PNG icons (16px, 48px, 128px)
 ```
 
 ---
@@ -88,7 +108,15 @@ cd sainisatta-casino-strategy
 pip install -r requirements.txt
 ```
 
-### 2. Running the Flask Backend
+### 2. Running Unit Tests
+
+Execute the automated test suite:
+
+```bash
+python3 -m unittest discover -v tests
+```
+
+### 3. Running the Flask Backend
 
 Launch the Python Flask server:
 
@@ -97,9 +125,9 @@ python3 server.py
 ```
 
 - The server will start at `http://localhost:5001`.
-- SQLite database (`database.db`) will automatically initialize on first launch.
+- SQLite database (`database.db`) automatically initializes tables on first launch.
 
-### 3. Accessing the Dashboard
+### 4. Accessing the Dashboard
 
 Open your browser and navigate to:
 ```
@@ -109,26 +137,44 @@ Alternatively, open `index.html` directly in any web browser.
 
 ---
 
+## ⌨️ Keyboard Shortcuts
+
+| Shortcut | Action |
+| :--- | :--- |
+| `1` – `9`, `0` | Quick jump to panels (Scan, Blackjack, Roulette, Baccarat, Poker, Craps, Mines, Limbo, Crash, Kelly) |
+| `T` | Cycle visual themes (Cyber Dark, Emerald VIP, High Roller, Midnight OLED) |
+| `M` | Toggle audio synthesizer / sound effects |
+| `?` | Open / Close Keyboard Shortcuts Cheat Sheet modal |
+| `Esc` | Close active modal dialog |
+| `Alt+Shift+S` | Toggle Chrome Extension Overlay HUD |
+
+---
+
 ## 🔌 Chrome Extension Setup
 
 1. Open Google Chrome or any Chromium browser and navigate to `chrome://extensions/`.
 2. Enable **Developer mode** (toggle switch in the top right corner).
 3. Click **Load unpacked**.
 4. Select the `chrome-extension` directory inside this repository.
-5. Click the `sainisatta` icon in your toolbar to activate the floating overlay on supported sites.
+5. Click the `sainisatta` icon or press `Alt+Shift+S` to activate the floating overlay on supported online casino tabs.
 
 ---
 
-## 📡 Backend API Reference
+## 📡 Backend REST API Reference
 
 | Endpoint | Method | Description |
 | :--- | :--- | :--- |
+| `/api/health` | `GET` | Health check endpoint returning backend status & version |
 | `/api/register` | `POST` | Register a new user (`username`, `password`) |
 | `/api/login` | `POST` | Authenticate user session |
 | `/api/logout` | `POST` | End active user session |
 | `/api/session` | `GET` | Retrieve current authentication state |
 | `/api/track` | `POST` | Log game module access count |
 | `/api/analytics` | `GET` | Fetch session usage stats per user |
+| `/api/sessions` | `GET` / `POST` | Record finished betting session & retrieve aggregate profit stats |
+| `/api/presets` | `GET` / `POST` | Save and list custom strategy parameter presets |
+| `/api/presets/<id>` | `DELETE` | Delete a saved strategy preset |
+| `/api/export` | `GET` | Download full user profile, analytics, sessions and presets as JSON |
 
 ---
 
