@@ -102,6 +102,9 @@
           <li class="nav-item" id="custom-tab" data-target="custom-panel">
             <button><i data-lucide="sliders"></i> Custom Sequencer</button>
           </li>
+          <li class="nav-item" id="bankroll-tab" data-target="bankroll-panel">
+            <button><i data-lucide="calculator"></i> Kelly & Bankroll</button>
+          </li>
           <li class="nav-item" id="analytics-tab" data-target="analytics-panel">
             <button><i data-lucide="bar-chart-2"></i> Engine Analytics</button>
           </li>
@@ -1337,6 +1340,126 @@
             </div>
           </div>
         </div>
+      <!-- ====================================================================
+           KELLY CRITERION & BANKROLL SIMULATOR PANEL
+           ==================================================================== -->
+      <section class="panel" id="bankroll-panel">
+        <div class="panel-header">
+          <div class="panel-title">
+            <h2>Kelly Criterion & Bankroll Risk Simulator</h2>
+            <p>Calculate mathematically optimal stake sizes, estimate Risk of Ruin, and run Monte Carlo multi-path trajectory simulations.</p>
+          </div>
+        </div>
+
+        <div class="grid-container">
+          <!-- Left Column: Inputs & Controls -->
+          <div class="glass-card">
+            <div class="card-title text-cyan"><i data-lucide="sliders"></i> Bankroll & Strategy Parameters</div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 0.75rem;">
+              <div class="form-group">
+                <label for="bk-bankroll">Current Bankroll ($)</label>
+                <input type="number" id="bk-bankroll" value="1000" min="10" step="10">
+              </div>
+              <div class="form-group">
+                <label for="bk-win-prob">Win Probability (%)</label>
+                <input type="number" id="bk-win-prob" value="51.5" min="0.1" max="99.9" step="0.1">
+              </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 0.75rem;">
+              <div class="form-group">
+                <label for="bk-odds">Payout Multiplier (Decimal)</label>
+                <input type="number" id="bk-odds" value="2.00" min="1.01" max="100" step="0.05">
+              </div>
+              <div class="form-group">
+                <label for="bk-fraction">Kelly Fraction</label>
+                <select id="bk-fraction" style="width: 100%; background: rgba(0,0,0,0.35); border: 1px solid var(--glass-border); color: var(--text-main); font-family: inherit; font-size: 0.85rem; padding: 0.65rem 0.85rem; border-radius: var(--radius-sm); outline: none;">
+                  <option value="1.0">Full Kelly (Aggressive)</option>
+                  <option value="0.5" selected>Half Kelly (Recommended)</option>
+                  <option value="0.25">Quarter Kelly (Conservative)</option>
+                  <option value="0.125">Eighth Kelly (Ultra Safe)</option>
+                </select>
+              </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 1rem;">
+              <div class="form-group">
+                <label for="bk-take-profit">Take Profit Target ($)</label>
+                <input type="number" id="bk-take-profit" value="2000" min="50" step="50">
+              </div>
+              <div class="form-group">
+                <label for="bk-stop-loss">Stop Loss Floor ($)</label>
+                <input type="number" id="bk-stop-loss" value="250" min="0" step="25">
+              </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 1rem;">
+              <div class="form-group">
+                <label for="bk-num-bets">Horizon (Bets)</label>
+                <input type="number" id="bk-num-bets" value="120" min="10" max="500" step="10">
+              </div>
+              <div class="form-group">
+                <label for="bk-num-sims">Simulations</label>
+                <input type="number" id="bk-num-sims" value="500" min="100" max="2000" step="100">
+              </div>
+            </div>
+
+            <div style="margin-bottom: 1rem;">
+              <label style="font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 0.4rem; display: block;">Quick Presets</label>
+              <div style="display: flex; gap: 0.4rem; flex-wrap: wrap;">
+                <button class="btn btn-secondary bk-preset-btn" data-prob="51.5" data-odds="2.00" data-fraction="0.5" style="padding: 0.35rem 0.65rem; font-size: 0.75rem;">Blackjack +2 EV</button>
+                <button class="btn btn-secondary bk-preset-btn" data-prob="48.65" data-odds="2.00" data-fraction="0.25" style="padding: 0.35rem 0.65rem; font-size: 0.75rem;">Roulette Red</button>
+                <button class="btn btn-secondary bk-preset-btn" data-prob="49.5" data-odds="2.00" data-fraction="0.5" style="padding: 0.35rem 0.65rem; font-size: 0.75rem;">Limbo 2.0x</button>
+                <button class="btn btn-secondary bk-preset-btn" data-prob="9.9" data-odds="10.00" data-fraction="0.25" style="padding: 0.35rem 0.65rem; font-size: 0.75rem;">Limbo 10x</button>
+              </div>
+            </div>
+
+            <button class="btn btn-cyan" id="bk-run-sim-btn" style="width: 100%; height: 44px;"><i data-lucide="play"></i> RUN MONTE CARLO SIMULATION</button>
+          </div>
+
+          <!-- Right Column: Results & Interactive Canvas -->
+          <div class="glass-card">
+            <div class="card-title text-purple"><i data-lucide="activity"></i> Mathematical Edge & Trajectory HUD</div>
+
+            <!-- Key Metrics Grid -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 0.6rem; margin-bottom: 1rem;">
+              <div class="glass-card" style="padding: 0.65rem; text-align: center; background: rgba(0, 242, 254, 0.05); border-color: rgba(0, 242, 254, 0.2);">
+                <span class="text-secondary" style="font-size: 0.7rem; display: block;">Recommended Stake</span>
+                <span id="bk-res-stake" class="text-cyan" style="font-size: 1.15rem; font-weight: 800; font-family: 'Orbitron', sans-serif;">$15.00</span>
+                <span id="bk-res-stake-pct" class="text-muted" style="font-size: 0.68rem; display: block;">1.50% Bankroll</span>
+              </div>
+              <div class="glass-card" style="padding: 0.65rem; text-align: center; background: rgba(168, 85, 247, 0.05); border-color: rgba(168, 85, 247, 0.2);">
+                <span class="text-secondary" style="font-size: 0.7rem; display: block;">Expected Value (EV)</span>
+                <span id="bk-res-ev" class="text-purple" style="font-size: 1.15rem; font-weight: 800; font-family: 'Orbitron', sans-serif;">+3.00%</span>
+                <span id="bk-res-ev-badge" class="badge" style="display: inline-block; font-size: 0.6rem; padding: 2px 6px; margin-top: 2px;">POSITIVE EV</span>
+              </div>
+              <div class="glass-card" style="padding: 0.65rem; text-align: center; background: rgba(244, 63, 94, 0.05); border-color: rgba(244, 63, 94, 0.2);">
+                <span class="text-secondary" style="font-size: 0.7rem; display: block;">Risk of Ruin</span>
+                <span id="bk-res-ror" class="text-crimson" style="font-size: 1.15rem; font-weight: 800; font-family: 'Orbitron', sans-serif;">2.4%</span>
+                <span class="text-muted" style="font-size: 0.68rem; display: block;">Empirical Simulation</span>
+              </div>
+              <div class="glass-card" style="padding: 0.65rem; text-align: center; background: rgba(16, 185, 129, 0.05); border-color: rgba(16, 185, 129, 0.2);">
+                <span class="text-secondary" style="font-size: 0.7rem; display: block;">Take-Profit Hit Rate</span>
+                <span id="bk-res-tp-rate" class="text-emerald" style="font-size: 1.15rem; font-weight: 800; font-family: 'Orbitron', sans-serif;">68.2%</span>
+                <span class="text-muted" style="font-size: 0.68rem; display: block;">Within Horizon</span>
+              </div>
+            </div>
+
+            <!-- Simulation Canvas -->
+            <div style="position: relative; border-radius: var(--radius-sm); overflow: hidden; margin-bottom: 0.75rem;">
+              <canvas id="bankroll-sim-canvas" width="650" height="260" style="width: 100%; height: 260px; display: block;"></canvas>
+            </div>
+
+            <!-- Summary Footnote -->
+            <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--text-secondary); padding: 0.25rem 0.5rem;">
+              <span>Median Ending: <strong id="bk-res-median" class="text-cyan">$1,280</strong></span>
+              <span>10th Percentile: <strong id="bk-res-p10" class="text-crimson">$740</strong></span>
+              <span>90th Percentile: <strong id="bk-res-p90" class="text-emerald">$1,960</strong></span>
+              <span>Max Drawdown: <strong id="bk-res-drawdown" class="text-gold">18.5%</strong></span>
+            </div>
+          </div>
+        </div>
       </section>
 
     </main>
@@ -1353,6 +1476,7 @@
   <script src="js/limbo.js"></script>
   <script src="js/crash.js"></script>
   <script src="js/vision.js"></script>
+  <script src="js/bankroll.js"></script>
   <script src="app.js"></script>
 </body>
 </html>

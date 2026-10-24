@@ -120,6 +120,7 @@ document.addEventListener("DOMContentLoaded", () => {
   initLimbo();
   initCrash();
   initCustomSequencer();
+  initBankroll();
 
   if (window.lucide) lucide.createIcons();
 });
@@ -153,6 +154,8 @@ function initRouting() {
         updateCustomChart();
       } else if (targetPanel === 'analytics-panel') {
         loadAnalytics();
+      } else if (targetPanel === 'bankroll-panel') {
+        updateBankrollEngine();
       }
     });
   });
@@ -2549,4 +2552,115 @@ function initCrash() {
   // Render initial predictions
   resolveMarkovPrediction();
 }
+
+// ═══════════════════════════════════════════════════════════════════════════
+// KELLY CRITERION & BANKROLL SIMULATOR CONTROLLER
+// ═══════════════════════════════════════════════════════════════════════════
+function initBankroll() {
+  const bankrollInput = document.getElementById("bk-bankroll");
+  const winProbInput = document.getElementById("bk-win-prob");
+  const oddsInput = document.getElementById("bk-odds");
+  const fractionSelect = document.getElementById("bk-fraction");
+  const tpInput = document.getElementById("bk-take-profit");
+  const slInput = document.getElementById("bk-stop-loss");
+  const betsInput = document.getElementById("bk-num-bets");
+  const simsInput = document.getElementById("bk-num-sims");
+  const runBtn = document.getElementById("bk-run-sim-btn");
+  const presetBtns = document.querySelectorAll(".bk-preset-btn");
+
+  if (!bankrollInput || !runBtn) return;
+
+  function runSimulation() {
+    playSound('shuffle');
+    const bankroll = parseFloat(bankrollInput.value) || 1000;
+    const prob = (parseFloat(winProbInput.value) || 50) / 100;
+    const decimalOdds = parseFloat(oddsInput.value) || 2.0;
+    const fraction = parseFloat(fractionSelect.value) || 0.5;
+    const takeProfit = parseFloat(tpInput.value) || 2000;
+    const stopLoss = parseFloat(slInput.value) || 0;
+    const numBets = parseInt(betsInput.value) || 120;
+    const numSims = parseInt(simsInput.value) || 500;
+
+    // Kelly calculation
+    const kelly = window.SattaBankroll.calculateKelly(prob, decimalOdds, fraction);
+    const stakeAmt = bankroll * kelly.recommendedFraction;
+
+    const stakeEl = document.getElementById("bk-res-stake");
+    const stakePctEl = document.getElementById("bk-res-stake-pct");
+    const evEl = document.getElementById("bk-res-ev");
+    const evBadge = document.getElementById("bk-res-ev-badge");
+
+    if (stakeEl) stakeEl.textContent = '$' + stakeAmt.toFixed(2);
+    if (stakePctEl) stakePctEl.textContent = (kelly.recommendedFraction * 100).toFixed(2) + '% of Bankroll';
+
+    if (evEl) {
+      evEl.textContent = (kelly.ev >= 0 ? '+' : '') + (kelly.ev * 100).toFixed(2) + '%';
+      evEl.className = kelly.ev >= 0 ? 'text-emerald' : 'text-crimson';
+    }
+
+    if (evBadge) {
+      evBadge.textContent = kelly.isPositiveEV ? 'POSITIVE EV' : 'NEGATIVE EV';
+      evBadge.style.color = kelly.isPositiveEV ? '#10b981' : '#f43f5e';
+      evBadge.style.borderColor = kelly.isPositiveEV ? 'rgba(16, 185, 129, 0.4)' : 'rgba(244, 63, 94, 0.4)';
+    }
+
+    // Run Monte Carlo
+    const simRes = window.SattaBankroll.runMonteCarlo({
+      initialBankroll: bankroll,
+      prob,
+      decimalOdds,
+      betFraction: Math.max(0.005, kelly.recommendedFraction),
+      numBets,
+      numSims,
+      takeProfit,
+      stopLoss
+    });
+
+    const rorEl = document.getElementById("bk-res-ror");
+    const tpRateEl = document.getElementById("bk-res-tp-rate");
+    const medianEl = document.getElementById("bk-res-median");
+    const p10El = document.getElementById("bk-res-p10");
+    const p90El = document.getElementById("bk-res-p90");
+    const ddEl = document.getElementById("bk-res-drawdown");
+
+    if (rorEl) rorEl.textContent = simRes.empiricalRoR.toFixed(1) + '%';
+    if (tpRateEl) tpRateEl.textContent = simRes.empiricalTakeProfit.toFixed(1) + '%';
+    if (medianEl) medianEl.textContent = '$' + Math.round(simRes.medianFinal).toLocaleString();
+    if (p10El) p10El.textContent = '$' + Math.round(simRes.p10).toLocaleString();
+    if (p90El) p90El.textContent = '$' + Math.round(simRes.p90).toLocaleString();
+    if (ddEl) ddEl.textContent = simRes.avgMaxDrawdown.toFixed(1) + '%';
+
+    // Draw canvas
+    window.SattaBankroll.drawSimulationCanvas("bankroll-sim-canvas", simRes);
+  }
+
+  runBtn.addEventListener("click", runSimulation);
+
+  presetBtns.forEach(btn => {
+    btn.addEventListener("click", () => {
+      playSound('click');
+      const p = btn.getAttribute("data-prob");
+      const o = btn.getAttribute("data-odds");
+      const f = btn.getAttribute("data-fraction");
+      if (p) winProbInput.value = p;
+      if (o) oddsInput.value = o;
+      if (f) fractionSelect.value = f;
+      runSimulation();
+    });
+  });
+
+  // Run initial simulation
+  runSimulation();
+}
+
+function updateBankrollEngine() {
+  const lastRes = window.SattaBankroll ? window.SattaBankroll.getLastResult() : null;
+  if (lastRes) {
+    window.SattaBankroll.drawSimulationCanvas("bankroll-sim-canvas", lastRes);
+  } else {
+    const btn = document.getElementById("bk-run-sim-btn");
+    if (btn) btn.click();
+  }
+}
+
 
