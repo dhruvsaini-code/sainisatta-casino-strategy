@@ -967,9 +967,33 @@ document.addEventListener('DOMContentLoaded', () => {
     log('AI Engine v4.0 loaded. All models warm-started from persistent storage.', 'success');
     log(`Models: Crash(${HIST.crash.length}rds) Limbo(${HIST.limbo.length}rds) Baccarat(${HIST.baccarat.length}rds) BJ(${HIST.bj_rounds}rds)`, 'ai');
 
+    checkBackendStatus();
+
     // Trigger an automatic scan immediately on startup so the active game is classified instantly
     setTimeout(captureAndPredict, 150);
   };
+
+  function checkBackendStatus() {
+    const badge = document.getElementById('server-status-badge');
+    if (!badge) return;
+
+    fetch('http://localhost:5001/api/health', { method: 'GET' })
+      .then(res => res.json())
+      .then(data => {
+        if (data.status === 'healthy') {
+          badge.textContent = '● SERVER ONLINE';
+          badge.style.color = '#10b981';
+          badge.style.borderColor = 'rgba(16, 185, 129, 0.4)';
+          badge.style.background = 'rgba(16, 185, 129, 0.12)';
+          log(`Connected to local Flask server (v${data.version || '3.1'})`, 'success');
+        }
+      })
+      .catch(() => {
+        badge.textContent = '○ LOCAL MODE';
+        badge.style.color = '#94a3b8';
+        badge.style.borderColor = 'rgba(100, 116, 139, 0.3)';
+      });
+  }
 
   if (dbInitialized) {
     start();
