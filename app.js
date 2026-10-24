@@ -105,8 +105,10 @@ const SUIT_NAMES = { 's': 'Spades', 'h': 'Hearts', 'd': 'Diamonds', 'c': 'Clubs'
 
 // Application Init
 document.addEventListener("DOMContentLoaded", () => {
+  initThemes();
   initRouting();
   initSoundToggle();
+  initShortcutsModal();
   initAuth();
   checkSession();
   
@@ -172,6 +174,93 @@ function initSoundToggle() {
     if (window.lucide) lucide.createIcons();
     toggleBtn.title = soundEnabled ? "Mute Sound Effects" : "Unmute Sound Effects";
     if (soundEnabled) playSound('click');
+  });
+}
+
+// ── Multi-Theme Manager ──
+function initThemes() {
+  const themeSelect = document.getElementById("theme-select");
+  const savedTheme = localStorage.getItem("satta_theme") || "cyber-dark";
+  document.documentElement.setAttribute("data-theme", savedTheme);
+  if (themeSelect) {
+    themeSelect.value = savedTheme;
+    themeSelect.addEventListener("change", (e) => {
+      const chosen = e.target.value;
+      document.documentElement.setAttribute("data-theme", chosen);
+      localStorage.setItem("satta_theme", chosen);
+      playSound('click');
+    });
+  }
+}
+
+// ── Keyboard Shortcuts Controller ──
+function initShortcutsModal() {
+  const modal = document.getElementById("shortcuts-modal");
+  const openBtn = document.getElementById("shortcuts-btn");
+  const closeBtn = document.getElementById("close-shortcuts-btn");
+  const gotitBtn = document.getElementById("shortcuts-gotit-btn");
+
+  function openModal() {
+    if (modal) {
+      modal.style.display = "flex";
+      playSound('click');
+    }
+  }
+
+  function closeModal() {
+    if (modal) {
+      modal.style.display = "none";
+      playSound('click');
+    }
+  }
+
+  if (openBtn) openBtn.addEventListener("click", openModal);
+  if (closeBtn) closeBtn.addEventListener("click", closeModal);
+  if (gotitBtn) gotitBtn.addEventListener("click", closeModal);
+
+  if (modal) {
+    modal.addEventListener("click", (e) => {
+      if (e.target === modal) closeModal();
+    });
+  }
+
+  // Hotkey mappings
+  const navTabs = [
+    'vision-tab', 'blackjack-tab', 'roulette-tab', 'baccarat-tab',
+    'poker-tab', 'craps-tab', 'mines-tab', 'limbo-tab', 'crash-tab', 'bankroll-tab'
+  ];
+
+  window.addEventListener("keydown", (e) => {
+    if (['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement.tagName)) {
+      if (e.key === 'Escape') document.activeElement.blur();
+      return;
+    }
+
+    if (e.key === '?' || (e.shiftKey && e.key === '/')) {
+      e.preventDefault();
+      if (modal && modal.style.display === 'flex') closeModal();
+      else openModal();
+    } else if (e.key === 'Escape') {
+      closeModal();
+    } else if (e.key === 'm' || e.key === 'M') {
+      const sndBtn = document.getElementById("sound-toggle");
+      if (sndBtn) sndBtn.click();
+    } else if (e.key === 't' || e.key === 'T') {
+      const themeSelect = document.getElementById("theme-select");
+      if (themeSelect) {
+        const options = ['cyber-dark', 'emerald-vip', 'crimson-highroller', 'midnight-oled'];
+        const currentIdx = options.indexOf(themeSelect.value);
+        const nextIdx = (currentIdx + 1) % options.length;
+        themeSelect.value = options[nextIdx];
+        themeSelect.dispatchEvent(new Event('change'));
+      }
+    } else if (e.key >= '0' && e.key <= '9') {
+      const idx = e.key === '0' ? 9 : parseInt(e.key) - 1;
+      if (idx < navTabs.length) {
+        const tabEl = document.getElementById(navTabs[idx]);
+        if (tabEl) tabEl.click();
+      }
+    }
   });
 }
 

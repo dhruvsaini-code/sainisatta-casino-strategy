@@ -48,6 +48,104 @@
   --transition-slow: 0.5s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
+/* ─── Multi-Theme Palettes ─── */
+[data-theme="emerald-vip"] {
+  --bg-deep: #01140e;
+  --bg-app: #031c15;
+  --bg-card: rgba(4, 30, 22, 0.75);
+  --bg-panel: rgba(2, 22, 16, 0.92);
+  --primary: #10b981;
+  --primary-gradient: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  --primary-glow: rgba(16, 185, 129, 0.35);
+  --secondary: #fbbf24;
+  --secondary-gradient: linear-gradient(135deg, #fbbf24 0%, #d97706 100%);
+  --secondary-glow: rgba(251, 191, 36, 0.35);
+  --shadow-glow: 0 0 30px rgba(16, 185, 129, 0.08), 0 0 50px rgba(251, 191, 36, 0.08);
+}
+
+[data-theme="crimson-highroller"] {
+  --bg-deep: #120208;
+  --bg-app: #1c050e;
+  --bg-card: rgba(30, 8, 17, 0.75);
+  --bg-panel: rgba(22, 4, 12, 0.92);
+  --primary: #f43f5e;
+  --primary-gradient: linear-gradient(135deg, #f43f5e 0%, #be123c 100%);
+  --primary-glow: rgba(244, 63, 94, 0.35);
+  --secondary: #fb923c;
+  --secondary-gradient: linear-gradient(135deg, #fb923c 0%, #ea580c 100%);
+  --secondary-glow: rgba(251, 146, 60, 0.35);
+  --shadow-glow: 0 0 30px rgba(244, 63, 94, 0.08), 0 0 50px rgba(251, 146, 60, 0.08);
+}
+
+[data-theme="midnight-oled"] {
+  --bg-deep: #000000;
+  --bg-app: #030712;
+  --bg-card: rgba(15, 23, 42, 0.85);
+  --bg-panel: rgba(8, 12, 22, 0.95);
+  --primary: #38bdf8;
+  --primary-gradient: linear-gradient(135deg, #38bdf8 0%, #0284c7 100%);
+  --primary-glow: rgba(56, 189, 248, 0.35);
+  --secondary: #a78bfa;
+  --secondary-gradient: linear-gradient(135deg, #a78bfa 0%, #7c3aed 100%);
+  --secondary-glow: rgba(167, 139, 250, 0.35);
+  --shadow-glow: 0 0 30px rgba(56, 189, 248, 0.08), 0 0 50px rgba(167, 139, 250, 0.08);
+}
+
+/* ─── Shortcut Modal & Header Theme Picker ─── */
+.theme-select {
+  background: rgba(0, 0, 0, 0.45);
+  border: 1px solid var(--glass-border);
+  color: var(--text-main);
+  padding: 0.35rem 0.65rem;
+  border-radius: var(--radius-xs);
+  font-size: 0.75rem;
+  font-family: inherit;
+  cursor: pointer;
+  outline: none;
+  transition: var(--transition-fast);
+}
+.theme-select:hover {
+  border-color: var(--secondary);
+}
+
+.shortcut-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.82);
+  backdrop-filter: blur(12px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+.shortcut-card {
+  max-width: 500px;
+  width: 100%;
+}
+.shortcut-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+  font-size: 0.82rem;
+}
+.shortcut-table td {
+  padding: 0.5rem 0.6rem;
+  border-bottom: 1px solid var(--glass-border);
+}
+.shortcut-table kbd {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75rem;
+  color: var(--secondary);
+}
+
 /* Base resets */
 * {
   box-sizing: border-box;

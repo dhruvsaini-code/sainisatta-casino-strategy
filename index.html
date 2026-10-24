@@ -44,6 +44,44 @@
         <a href="#" id="auth-toggle-link" style="color: var(--secondary); font-weight: 700; text-decoration: none; margin-left: 0.25rem;">Register Here</a>
       </div>
     </div>
+  <!-- Glassmorphic Keyboard Shortcuts Modal Overlay -->
+  <div id="shortcuts-modal" class="shortcut-modal-overlay" style="display: none;">
+    <div class="glass-card shortcut-card" style="border-color: rgba(0, 242, 254, 0.3);">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+        <div style="display: flex; align-items: center; gap: 0.5rem;">
+          <div class="logo-icon" style="width: 32px; height: 32px; font-size: 1rem;">⌨</div>
+          <h3 style="font-family: 'Orbitron', sans-serif; font-size: 1.1rem; color: #fff;">Keyboard Shortcuts</h3>
+        </div>
+        <button id="close-shortcuts-btn" style="background: none; border: none; color: var(--text-secondary); cursor: pointer; font-size: 1.25rem;">✕</button>
+      </div>
+      <table class="shortcut-table">
+        <tbody>
+          <tr>
+            <td><kbd>1</kbd> - <kbd>9</kbd>, <kbd>0</kbd></td>
+            <td>Switch tabs (1: Scan, 2: Blackjack, 3: Roulette, 4: Baccarat, 5: Poker, 6: Craps, 7: Mines, 8: Limbo, 9: Crash, 0: Kelly)</td>
+          </tr>
+          <tr>
+            <td><kbd>M</kbd></td>
+            <td>Toggle Audio Synthesizer / Sound Effects</td>
+          </tr>
+          <tr>
+            <td><kbd>T</kbd></td>
+            <td>Cycle Visual Themes (Cyber Dark, Emerald VIP, High Roller, OLED)</td>
+          </tr>
+          <tr>
+            <td><kbd>?</kbd></td>
+            <td>Open / Close Keyboard Shortcuts Cheat Sheet</td>
+          </tr>
+          <tr>
+            <td><kbd>Esc</kbd></td>
+            <td>Close any active modal dialog</td>
+          </tr>
+        </tbody>
+      </table>
+      <div style="margin-top: 1.25rem; text-align: center;">
+        <button class="btn btn-cyan" id="shortcuts-gotit-btn" style="width: 100%; height: 38px;">Got It</button>
+      </div>
+    </div>
   </div>
 
   <!-- Top Navigation Bar -->
@@ -57,6 +95,15 @@
     </div>
     <div class="header-actions">
       <span id="user-profile-badge" class="badge" style="display: none; background: rgba(168, 85, 247, 0.15); border-color: rgba(168, 85, 247, 0.3); color: #c084fc; font-family: 'Orbitron', sans-serif;">USER: <span id="header-username">GUEST</span></span>
+      <select id="theme-select" class="theme-select" title="Switch Theme">
+        <option value="cyber-dark">🌌 Cyber Dark</option>
+        <option value="emerald-vip">🟢 Emerald VIP</option>
+        <option value="crimson-highroller">🔴 High Roller</option>
+        <option value="midnight-oled">⚡ Midnight OLED</option>
+      </select>
+      <button class="sound-toggle-btn" id="shortcuts-btn" title="Keyboard Shortcuts (?)">
+        <i data-lucide="keyboard"></i>
+      </button>
       <button class="sound-toggle-btn" id="sound-toggle" title="Mute Sound Effects">
         <i data-lucide="volume-2"></i>
       </button>
