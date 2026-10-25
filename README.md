@@ -1,11 +1,11 @@
 # 🎰 sainisatta — Premium Live Casino Strategy & AI Predictor Deck
 
-![Version](https://img.shields.io/badge/version-3.1.0-purple.svg)
+![Version](https://img.shields.io/badge/version-3.2.0-purple.svg)
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 ![Python](https://img.shields.io/badge/backend-Flask%203.0-green.svg)
 ![Frontend](https://img.shields.io/badge/frontend-HTML5%20%2F%20Vanilla%20CSS%20%2F%20ES6%2B-orange.svg)
 ![Extension](https://img.shields.io/badge/extension-Chrome%20Manifest%20V3-cyan.svg)
-![Tests](https://img.shields.io/badge/tests-14%20passing-brightgreen.svg)
+![Tests](https://img.shields.io/badge/tests-22%20passing-brightgreen.svg)
 ![CI](https://img.shields.io/badge/CI-GitHub%20Actions-blueviolet.svg)
 
 **sainisatta** is an advanced mathematical strategy companion and client-side AI engine built for real-time casino decision modeling, probability estimation, and vision-assisted screenshot scanning. 
@@ -62,11 +62,13 @@ sainisatta/
 ├── server.py             # Flask backend with SQLite user auth, sessions, presets & CORS
 ├── requirements.txt      # Python backend dependencies (Flask, Werkzeug)
 ├── database.db           # Local SQLite database (git-ignored)
+├── CHANGELOG.md          # Version release history and migration notes
 ├── .github/workflows/    # CI/CD automation suite
 │   └── ci.yml            # Multi-version Python & Node JS syntax validation workflow
-├── tests/                # Automated unit test suite
+├── tests/                # Automated unit test suite (22 tests)
 │   ├── __init__.py
 │   ├── test_server.py    # Flask REST API tests (Auth, Sessions, Presets, Export, CORS)
+│   ├── test_bankroll.py  # Bankroll management, Kelly bounds & Risk of Ruin decay tests
 │   └── test_math_engines.py # Mathematical strategy verification (Kelly, Hi-Lo, Martingale, Limbo, Craps)
 ├── js/
 │   ├── ai_predictor.js   # ANN & RNN Neural Network core + Adam Optimizer + Experience Replay
@@ -175,6 +177,7 @@ Alternatively, open `index.html` directly in any web browser.
 | `/api/presets` | `GET` / `POST` | Save and list custom strategy parameter presets |
 | `/api/presets/<id>` | `DELETE` | Delete a saved strategy preset |
 | `/api/export` | `GET` | Download full user profile, analytics, sessions and presets as JSON |
+| `/api/export/csv` | `GET` | Export structured session bankroll logs as CSV spreadsheet |
 
 ---
 
