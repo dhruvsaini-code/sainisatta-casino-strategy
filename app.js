@@ -2784,10 +2784,19 @@ function initBankroll() {
   // Session Logger Handlers
   const saveBtn = document.getElementById("bk-save-session-btn");
   const refreshBtn = document.getElementById("bk-refresh-sessions-btn");
+  const exportCsvBtn = document.getElementById("bk-export-csv-btn");
+
   if (refreshBtn) refreshBtn.addEventListener("click", () => {
     playSound('click');
     loadBankrollSessions();
   });
+
+  if (exportCsvBtn) {
+    exportCsvBtn.addEventListener("click", () => {
+      playSound('click');
+      window.location.href = "/api/export/csv";
+    });
+  }
 
   if (saveBtn) {
     saveBtn.addEventListener("click", () => {

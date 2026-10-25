@@ -172,5 +172,23 @@ class ServerTestCase(unittest.TestCase):
     self.assertIn('presets', data)
     self.assertEqual(data['user']['username'], 'exporter')
 
+  def test_sessions_csv_export(self):
+    self.client.post('/api/register', json={'username': 'csvexporter', 'password': 'password123'})
+    self.client.post('/api/login', json={'username': 'csvexporter', 'password': 'password123'})
+    self.client.post('/api/sessions', json={
+      'game_name': 'limbo',
+      'starting_bankroll': 100.0,
+      'ending_bankroll': 150.0,
+      'total_bets': 10,
+      'strategy_name': 'Kelly'
+    })
+
+    csv_res = self.client.get('/api/export/csv')
+    self.assertEqual(csv_res.status_code, 200)
+    self.assertIn('text/csv', csv_res.headers.get('Content-Type', ''))
+    csv_text = csv_res.data.decode('utf-8')
+    self.assertIn('Date (UTC),Game,Starting Bankroll ($)', csv_text)
+    self.assertIn('limbo,100.0,150.0,50.0,10,Kelly', csv_text)
+
 if __name__ == '__main__':
   unittest.main()

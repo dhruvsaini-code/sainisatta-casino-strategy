@@ -1560,7 +1560,10 @@
           <div class="glass-card">
             <div class="card-title text-cyan" style="display: flex; justify-content: space-between; align-items: center;">
               <span><i data-lucide="history"></i> Session History & P/L Ledger</span>
-              <button class="btn btn-secondary" id="bk-refresh-sessions-btn" style="width: auto; padding: 0.25rem 0.6rem; font-size: 0.7rem;"><i data-lucide="refresh-cw"></i> Refresh</button>
+              <div style="display: flex; gap: 0.4rem;">
+                <button class="btn btn-secondary" id="bk-export-csv-btn" style="width: auto; padding: 0.25rem 0.6rem; font-size: 0.7rem;"><i data-lucide="download"></i> Export CSV</button>
+                <button class="btn btn-secondary" id="bk-refresh-sessions-btn" style="width: auto; padding: 0.25rem 0.6rem; font-size: 0.7rem;"><i data-lucide="refresh-cw"></i> Refresh</button>
+              </div>
             </div>
             <div id="bk-sessions-history-list" style="max-height: 220px; overflow-y: auto;">
               <p class="text-muted" style="font-size: 0.8rem; text-align: center; padding: 1.5rem;">Log in to view and save your persistent session bankroll history.</p>

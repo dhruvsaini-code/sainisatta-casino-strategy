@@ -435,6 +435,47 @@ def export_user_data():
     'presets': presets_data
   }), 200
 
+@app.route('/api/export/csv', methods=['GET'])
+def export_sessions_csv():
+  if 'user_id' not in session:
+    return jsonify({'error': 'Authentication required'}), 401
+
+  conn = get_db_connection()
+  cursor = conn.cursor()
+  cursor.execute('''
+    SELECT created_at, game_name, starting_bankroll, ending_bankroll, net_profit, total_bets, strategy_name
+    FROM betting_sessions
+    WHERE user_id = ?
+    ORDER BY created_at DESC
+  ''', (session['user_id'],))
+  rows = cursor.fetchall()
+  conn.close()
+
+  import io
+  import csv
+  from flask import Response
+
+  output = io.StringIO()
+  writer = csv.writer(output)
+  writer.writerow(['Date (UTC)', 'Game', 'Starting Bankroll ($)', 'Ending Bankroll ($)', 'Net Profit ($)', 'Total Bets', 'Strategy'])
+
+  for r in rows:
+    writer.writerow([
+      r['created_at'],
+      r['game_name'],
+      r['starting_bankroll'],
+      r['ending_bankroll'],
+      r['net_profit'],
+      r['total_bets'],
+      r['strategy_name'] or 'Standard'
+    ])
+
+  return Response(
+    output.getvalue(),
+    mimetype='text/csv',
+    headers={'Content-Disposition': 'attachment; filename=sainisatta-sessions.csv'}
+  )
+
 if __name__ == '__main__':
   # Run Flask on port 5001 to avoid AirPlay conflict on macOS
   app.run(host='0.0.0.0', port=5001, debug=True)
