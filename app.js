@@ -73,6 +73,47 @@ function playSound(type) {
       gain.gain.exponentialRampToValueAtTime(0.01, now + 0.25);
       osc.start(now);
       osc.stop(now + 0.25);
+    } else if (type === 'chip') {
+      // Ceramic casino chip clink
+      [2200, 3100].forEach((freq, i) => {
+        const o = audioCtx.createOscillator();
+        const g = audioCtx.createGain();
+        o.connect(g);
+        g.connect(audioCtx.destination);
+        o.type = 'sine';
+        o.frequency.setValueAtTime(freq, now + i * 0.025);
+        g.gain.setValueAtTime(0.08, now + i * 0.025);
+        g.gain.exponentialRampToValueAtTime(0.001, now + i * 0.025 + 0.045);
+        o.start(now + i * 0.025);
+        o.stop(now + i * 0.025 + 0.045);
+      });
+    } else if (type === 'card') {
+      // Quick card slide / flick
+      const o = audioCtx.createOscillator();
+      const g = audioCtx.createGain();
+      o.connect(g);
+      g.connect(audioCtx.destination);
+      o.type = 'triangle';
+      o.frequency.setValueAtTime(450, now);
+      o.frequency.exponentialRampToValueAtTime(150, now + 0.05);
+      g.gain.setValueAtTime(0.06, now);
+      g.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
+      o.start(now);
+      o.stop(now + 0.05);
+    } else if (type === 'alert') {
+      // High-priority strategy alert chime
+      [880, 1174.66].forEach((f, idx) => {
+        const o = audioCtx.createOscillator();
+        const g = audioCtx.createGain();
+        o.connect(g);
+        g.connect(audioCtx.destination);
+        o.type = 'sine';
+        o.frequency.setValueAtTime(f, now + idx * 0.09);
+        g.gain.setValueAtTime(0.1, now + idx * 0.09);
+        g.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.09 + 0.16);
+        o.start(now + idx * 0.09);
+        o.stop(now + idx * 0.09 + 0.16);
+      });
     }
   } catch (err) {
     console.warn('Audio Context interaction error:', err);
