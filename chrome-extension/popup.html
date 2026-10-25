@@ -74,7 +74,17 @@
 
     <!-- Override Parameters -->
     <div class="glass-card">
-      <div class="card-title">⚙ Config overrides</div>
+      <div class="card-title">⚙ Engine Quick Select</div>
+      <div class="quick-pills" id="quick-game-pills">
+        <button class="quick-pill active" data-game="auto">Auto</button>
+        <button class="quick-pill" data-game="blackjack">BJ</button>
+        <button class="quick-pill" data-game="roulette">Roulette</button>
+        <button class="quick-pill" data-game="limbo">Limbo</button>
+        <button class="quick-pill" data-game="crash">Crash</button>
+        <button class="quick-pill" data-game="mines">Mines</button>
+        <button class="quick-pill" data-game="poker">Poker</button>
+        <button class="quick-pill" data-game="baccarat">Baccarat</button>
+      </div>
       <div class="hud-row" style="border: none; padding: 0;">
         <select id="game-override-select">
           <option value="auto">Auto-Classify (Live OCR Scanner)</option>
@@ -86,6 +96,28 @@
           <option value="limbo">Force Limbo Target</option>
           <option value="crash">Force Crash Rocket</option>
         </select>
+      </div>
+    </div>
+
+    <!-- Quick Kelly Staking Calculator Card -->
+    <div class="glass-card">
+      <div class="card-title">
+        <span>💰 Live Kelly Bet Sizer</span>
+        <span class="badge" id="popup-kelly-badge" style="font-size: 0.58rem; color: var(--emerald); border-color: rgba(16, 185, 129, 0.4);">POSITIVE EV</span>
+      </div>
+      <div class="hud-row">
+        <span>Session Bankroll ($)</span>
+        <input type="number" id="popup-bankroll-input" value="500" min="10" step="10" style="width: 80px; text-align: right; background: rgba(0,0,0,0.4); border: 1px solid var(--glass-border); color: #fff; padding: 2px 6px; border-radius: 4px; font-family: monospace;">
+      </div>
+      <div class="mini-kelly-grid">
+        <div class="mini-kelly-item">
+          <div class="mini-kelly-val text-cyan" id="popup-kelly-stake">$10.00</div>
+          <div class="mini-kelly-lbl">Recommended Stake</div>
+        </div>
+        <div class="mini-kelly-item">
+          <div class="mini-kelly-val text-emerald" id="popup-kelly-ev">+2.00%</div>
+          <div class="mini-kelly-lbl">Computed Edge (EV)</div>
+        </div>
       </div>
     </div>
 

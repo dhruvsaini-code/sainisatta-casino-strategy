@@ -952,16 +952,42 @@ document.addEventListener('DOMContentLoaded', () => {
     if (captureBtn) captureBtn.addEventListener('click', captureAndPredict);
    
     const overrideSelect = document.getElementById('game-override-select');
+    const quickPills = document.querySelectorAll('.quick-pill');
+
+    function syncPills(val) {
+      quickPills.forEach(p => {
+        if (p.getAttribute('data-game') === val) p.classList.add('active');
+        else p.classList.remove('active');
+      });
+    }
+
     if (overrideSelect) {
       // Restore saved manual override config
       const savedOverride = DB.get('mn_game_override', 'auto');
       overrideSelect.value = savedOverride;
+      syncPills(savedOverride);
       
       overrideSelect.addEventListener('change', () => {
         DB.set('mn_game_override', overrideSelect.value);
+        syncPills(overrideSelect.value);
         log(`Manual override: ${overrideSelect.value.toUpperCase()}`, 'warn');
         resolveLiveHeuristics(); // automatically re-run heuristics
       });
+
+      quickPills.forEach(pill => {
+        pill.addEventListener('click', () => {
+          const g = pill.getAttribute('data-game');
+          overrideSelect.value = g;
+          overrideSelect.dispatchEvent(new Event('change'));
+        });
+      });
+    }
+
+    // Live Kelly Bet Sizer
+    const bankrollInput = document.getElementById('popup-bankroll-input');
+    if (bankrollInput) {
+      bankrollInput.addEventListener('input', () => updatePopupKelly());
+      updatePopupKelly();
     }
    
     log('AI Engine v4.0 loaded. All models warm-started from persistent storage.', 'success');
@@ -972,6 +998,34 @@ document.addEventListener('DOMContentLoaded', () => {
     // Trigger an automatic scan immediately on startup so the active game is classified instantly
     setTimeout(captureAndPredict, 150);
   };
+
+  function updatePopupKelly(winProb = 0.515, decimalOdds = 2.0) {
+    const bankrollInput = document.getElementById('popup-bankroll-input');
+    const stakeEl = document.getElementById('popup-kelly-stake');
+    const evEl = document.getElementById('popup-kelly-ev');
+    const badgeEl = document.getElementById('popup-kelly-badge');
+    if (!bankrollInput || !stakeEl) return;
+
+    const bankroll = parseFloat(bankrollInput.value) || 500;
+    const b = Math.max(0.01, decimalOdds - 1);
+    const p = Math.max(0, Math.min(1, winProb));
+    const q = 1 - p;
+    const ev = (p * b) - q;
+    const fullKelly = (b * p - q) / b;
+    const halfKelly = fullKelly > 0 ? fullKelly * 0.5 : 0;
+    const stake = Math.max(1, Math.round(bankroll * halfKelly));
+
+    stakeEl.textContent = fullKelly > 0 ? `$${stake.toFixed(2)}` : '$0.00';
+    if (evEl) {
+      evEl.textContent = (ev >= 0 ? '+' : '') + (ev * 100).toFixed(2) + '%';
+      evEl.className = ev >= 0 ? 'mini-kelly-val text-emerald' : 'mini-kelly-val text-crimson';
+    }
+    if (badgeEl) {
+      badgeEl.textContent = ev >= 0 ? 'POSITIVE EV' : 'NEGATIVE EV';
+      badgeEl.style.color = ev >= 0 ? '#10b981' : '#f43f5e';
+      badgeEl.style.borderColor = ev >= 0 ? 'rgba(16, 185, 129, 0.4)' : 'rgba(244, 63, 94, 0.4)';
+    }
+  }
 
   function checkBackendStatus() {
     const badge = document.getElementById('server-status-badge');
