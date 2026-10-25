@@ -1381,8 +1381,9 @@
             </div>
           </div>
           <div class="glass-card">
-            <div class="card-title text-purple"><i data-lucide="brain"></i> Live Neural Net Status</div>
-            <div id="analytics-nn-list" class="step-sequence" style="max-height: 280px; overflow-y: auto;">
+            <div class="card-title text-purple"><i data-lucide="brain"></i> Live Neural Net Status & Loss Curve</div>
+            <canvas id="nn-loss-canvas" width="340" height="80" style="width: 100%; height: 80px; border-radius: 6px; margin-bottom: 0.6rem; border: 1px solid var(--glass-border); display: block;"></canvas>
+            <div id="analytics-nn-list" class="step-sequence" style="max-height: 200px; overflow-y: auto;">
               <!-- Dynamically populated -->
             </div>
           </div>

@@ -1692,6 +1692,8 @@ function updateNNAnalytics() {
     return;
   }
 
+  window.SattaAIPredictor.drawLossCurve("nn-loss-canvas");
+
   const games = Object.keys(window.SattaAIPredictor.models);
   games.forEach(game => {
     const model = window.SattaAIPredictor.models[game];

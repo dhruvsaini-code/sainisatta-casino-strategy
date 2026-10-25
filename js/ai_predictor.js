@@ -675,7 +675,79 @@
         }
         totalLoss += sampleLoss;
       }
-      return totalLoss / batchSize;
+
+      const avgLoss = totalLoss / batchSize;
+      if (!this.lossHistory) this.lossHistory = { all: [] };
+      if (!this.lossHistory[game]) this.lossHistory[game] = [];
+      this.lossHistory[game].push(avgLoss);
+      this.lossHistory.all.push(avgLoss);
+      if (this.lossHistory[game].length > 40) this.lossHistory[game].shift();
+      if (this.lossHistory.all.length > 50) this.lossHistory.all.shift();
+      return avgLoss;
+    }
+
+    drawLossCurve(canvasId, game = 'all') {
+      const canvas = document.getElementById(canvasId);
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return;
+
+      const w = canvas.width;
+      const h = canvas.height;
+      ctx.clearRect(0, 0, w, h);
+
+      ctx.fillStyle = '#060a16';
+      ctx.fillRect(0, 0, w, h);
+
+      const hist = (this.lossHistory && this.lossHistory[game]) ? this.lossHistory[game] : [];
+      if (!hist.length) {
+        ctx.fillStyle = '#64748b';
+        ctx.font = '10px monospace';
+        ctx.textAlign = 'center';
+        ctx.fillText('Awaiting neural net backprop training iterations...', w / 2, h / 2 + 3);
+        return;
+      }
+
+      const pad = { top: 12, bottom: 16, left: 30, right: 12 };
+      const cw = w - pad.left - pad.right;
+      const ch = h - pad.top - pad.bottom;
+      const maxVal = Math.max(0.2, Math.max(...hist) * 1.15);
+      const minVal = 0;
+
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
+      ctx.lineWidth = 1;
+      for (let i = 0; i <= 2; i++) {
+        const y = pad.top + (i / 2) * ch;
+        ctx.beginPath();
+        ctx.moveTo(pad.left, y);
+        ctx.lineTo(w - pad.right, y);
+        ctx.stroke();
+      }
+
+      ctx.strokeStyle = '#c084fc';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      hist.forEach((v, idx) => {
+        const x = pad.left + (idx / Math.max(1, hist.length - 1)) * cw;
+        const y = pad.top + ch - ((v - minVal) / (maxVal - minVal)) * ch;
+        if (idx === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      });
+      ctx.stroke();
+
+      const grad = ctx.createLinearGradient(0, pad.top, 0, h - pad.bottom);
+      grad.addColorStop(0, 'rgba(192, 132, 252, 0.2)');
+      grad.addColorStop(1, 'rgba(192, 132, 252, 0.0)');
+      ctx.fillStyle = grad;
+      ctx.lineTo(pad.left + cw, pad.top + ch);
+      ctx.lineTo(pad.left, pad.top + ch);
+      ctx.closePath();
+      ctx.fill();
+
+      ctx.fillStyle = '#c084fc';
+      ctx.font = 'bold 9px monospace';
+      ctx.textAlign = 'left';
+      ctx.fillText(`Loss: ${hist[hist.length - 1].toFixed(4)} (MSE)`, pad.left + 4, pad.top + 8);
     }
 
     // --- GAME SPECIFIC APIS ---
