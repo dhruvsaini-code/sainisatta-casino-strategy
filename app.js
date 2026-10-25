@@ -2738,8 +2738,87 @@ function initBankroll() {
     });
   });
 
-  // Run initial simulation
+  // Session Logger Handlers
+  const saveBtn = document.getElementById("bk-save-session-btn");
+  const refreshBtn = document.getElementById("bk-refresh-sessions-btn");
+  if (refreshBtn) refreshBtn.addEventListener("click", () => {
+    playSound('click');
+    loadBankrollSessions();
+  });
+
+  if (saveBtn) {
+    saveBtn.addEventListener("click", () => {
+      const game = document.getElementById("bk-sess-game")?.value || "limbo";
+      const strategy = document.getElementById("bk-sess-strategy")?.value || "Kelly Staking";
+      const start = parseFloat(document.getElementById("bk-sess-start")?.value) || 0;
+      const end = parseFloat(document.getElementById("bk-sess-end")?.value) || 0;
+      const bets = parseInt(document.getElementById("bk-sess-bets")?.value) || 0;
+
+      fetch("/api/sessions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          game_name: game,
+          starting_bankroll: start,
+          ending_bankroll: end,
+          total_bets: bets,
+          strategy_name: strategy
+        })
+      })
+      .then(res => {
+        if (!res.ok) throw new Error("Please log in first to record persistent sessions.");
+        return res.json();
+      })
+      .then(data => {
+        playSound('click');
+        loadBankrollSessions();
+      })
+      .catch(err => {
+        alert(err.message);
+      });
+    });
+  }
+
+  // Initial load
   runSimulation();
+  loadBankrollSessions();
+}
+
+function loadBankrollSessions() {
+  const container = document.getElementById("bk-sessions-history-list");
+  if (!container) return;
+
+  fetch("/api/sessions")
+    .then(res => {
+      if (!res.ok) throw new Error("Auth required");
+      return res.json();
+    })
+    .then(data => {
+      const sessions = data.sessions || [];
+      if (!sessions.length) {
+        container.innerHTML = '<p class="text-muted" style="font-size: 0.8rem; text-align: center; padding: 1.5rem;">No sessions logged yet. Record your first session above!</p>';
+        return;
+      }
+      let html = '<table style="width: 100%; font-size: 0.72rem; border-collapse: collapse;">';
+      html += '<thead><tr style="color: var(--text-secondary); border-bottom: 1px solid var(--glass-border); text-align: left;"><th style="padding: 4px 6px;">Game</th><th style="padding: 4px 6px;">Strategy</th><th style="padding: 4px 6px;">Start / End</th><th style="padding: 4px 6px;">Net P/L</th><th style="padding: 4px 6px;">Bets</th></tr></thead><tbody>';
+      sessions.forEach(s => {
+        const isProf = s.net_profit >= 0;
+        const color = isProf ? '#10b981' : '#f43f5e';
+        const sign = isProf ? '+' : '';
+        html += `<tr style="border-bottom: 1px solid rgba(255,255,255,0.03);">
+          <td style="padding: 5px 6px; font-weight: 700; text-transform: uppercase;">${s.game_name}</td>
+          <td style="padding: 5px 6px; color: var(--text-secondary);">${s.strategy_name || '-'}</td>
+          <td style="padding: 5px 6px; font-family: monospace;">$${s.starting_bankroll} → $${s.ending_bankroll}</td>
+          <td style="padding: 5px 6px; font-weight: 800; color: ${color}; font-family: monospace;">${sign}$${s.net_profit.toFixed(2)}</td>
+          <td style="padding: 5px 6px; color: var(--text-muted);">${s.total_bets}</td>
+        </tr>`;
+      });
+      html += '</tbody></table>';
+      container.innerHTML = html;
+    })
+    .catch(() => {
+      container.innerHTML = '<p class="text-muted" style="font-size: 0.8rem; text-align: center; padding: 1.5rem;">Log in to view and save your persistent session bankroll history.</p>';
+    });
 }
 
 function updateBankrollEngine() {
@@ -2750,6 +2829,7 @@ function updateBankrollEngine() {
     const btn = document.getElementById("bk-run-sim-btn");
     if (btn) btn.click();
   }
+  loadBankrollSessions();
 }
 
 

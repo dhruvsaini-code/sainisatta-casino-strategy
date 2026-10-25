@@ -1507,6 +1507,65 @@
             </div>
           </div>
         </div>
+
+        <!-- Session Tracking & Database Logger Row -->
+        <div class="grid-container" style="margin-top: 1rem;">
+          <!-- Left: Record Session Form -->
+          <div class="glass-card">
+            <div class="card-title text-emerald"><i data-lucide="check-circle-2"></i> Log Completed Session to Database</div>
+            <form id="bk-session-form" onsubmit="event.preventDefault();">
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 0.75rem;">
+                <div class="form-group">
+                  <label for="bk-sess-game">Game Played</label>
+                  <select id="bk-sess-game" style="width: 100%; background: rgba(0,0,0,0.35); border: 1px solid var(--glass-border); color: var(--text-main); font-family: inherit; font-size: 0.85rem; padding: 0.65rem 0.85rem; border-radius: var(--radius-sm); outline: none;">
+                    <option value="blackjack">Blackjack</option>
+                    <option value="roulette">Roulette</option>
+                    <option value="limbo" selected>Limbo</option>
+                    <option value="crash">Crash</option>
+                    <option value="mines">Mines</option>
+                    <option value="baccarat">Baccarat</option>
+                    <option value="poker">Poker</option>
+                    <option value="craps">Craps</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label for="bk-sess-strategy">Strategy Name</label>
+                  <input type="text" id="bk-sess-strategy" value="Half Kelly Staking" placeholder="e.g. Martingale, Kelly">
+                </div>
+              </div>
+
+              <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.75rem; margin-bottom: 1rem;">
+                <div class="form-group">
+                  <label for="bk-sess-start">Start Bankroll ($)</label>
+                  <input type="number" id="bk-sess-start" value="1000" min="1" step="10">
+                </div>
+                <div class="form-group">
+                  <label for="bk-sess-end">End Bankroll ($)</label>
+                  <input type="number" id="bk-sess-end" value="1250" min="0" step="10">
+                </div>
+                <div class="form-group">
+                  <label for="bk-sess-bets">Total Bets</label>
+                  <input type="number" id="bk-sess-bets" value="45" min="1" step="1">
+                </div>
+              </div>
+
+              <button class="btn btn-emerald" id="bk-save-session-btn" style="width: 100%; height: 42px;">
+                <i data-lucide="save"></i> Save Session to Database
+              </button>
+            </form>
+          </div>
+
+          <!-- Right: Session History Table -->
+          <div class="glass-card">
+            <div class="card-title text-cyan" style="display: flex; justify-content: space-between; align-items: center;">
+              <span><i data-lucide="history"></i> Session History & P/L Ledger</span>
+              <button class="btn btn-secondary" id="bk-refresh-sessions-btn" style="width: auto; padding: 0.25rem 0.6rem; font-size: 0.7rem;"><i data-lucide="refresh-cw"></i> Refresh</button>
+            </div>
+            <div id="bk-sessions-history-list" style="max-height: 220px; overflow-y: auto;">
+              <p class="text-muted" style="font-size: 0.8rem; text-align: center; padding: 1.5rem;">Log in to view and save your persistent session bankroll history.</p>
+            </div>
+          </div>
+        </div>
       </section>
 
     </main>
